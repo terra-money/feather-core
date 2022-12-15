@@ -17,3 +17,8 @@ client:
 faucet:
   name: bob
   coins: ["5token", "100000stake"]
+genesis:
+  app_state:
+    staking:
+      params:
+        bond_denom: "stake"

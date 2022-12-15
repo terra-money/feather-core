@@ -1,0 +1,49 @@
+ignore:
+  - .git/
+  - transformations.yml
+  - docs/static/openapi.yml
+  - .idea/
+inputs:
+  - id: name
+    text: What is the chain name? (e.g. foo)
+    type: text
+  - id: package_name
+    text: What is the package name? (e.g. github.com/chain/foo)
+    type: text
+  - id: account_prefix
+    text: What is the account prefix? (e.g. feath)
+    type: text
+  - id: bond_denom
+    text: What is the bond denom? (e.g. stake)
+    type: text
+transformations:
+    - name: rename cmd
+      type: rename
+      pattern: "feather-based"
+      replacement: "{{ .name }}d" # The text to replace. You may use go tempalates and perform arbitrary replacements.
+      files: [ "*/**" ]
+    - name: project path
+      type: replace
+      pattern: github.com/terra-money/feather-base
+      replacement: "{{ .package_name }}"
+      files: ["*.go", "**/*.go", "go.mod", "go.sum", "Makefile"]
+    - name: chain name
+      type: replace
+      pattern: "feather-base"
+      replacement: "{{ .name }}"
+      files: ["app/app.go", "vue/package.json", "cmd/food/main.go"]
+    - name: account prefix
+      type: replace
+      pattern: "\"feath\""
+      replacement: "\"{{ .account_prefix }}\""
+      files: ["app/app.go"]
+    - name: bond denom
+      type: replace
+      pattern: stake
+      replacement: "{{ .bond_denom }}"
+      files: ["config.yml"]
+    - name: readme
+      type: replace
+      pattern: featherbase
+      replacement: "{{ .name }}"
+      files: ["README.md"]
