@@ -17,21 +17,11 @@ inputs:
     text: What is the bond denom? (e.g. stake)
     type: text
 transformations:
-    - name: rename cmd
+    - name: rename
       type: rename
-      pattern: "feather-based"
-      replacement: "{{ .name }}d" # The text to replace. You may use go tempalates and perform arbitrary replacements.
-      files: [ "*/**" ]
-    - name: project path
-      type: replace
-      pattern: github.com/terra-money/feather-base
-      replacement: "{{ .package_name }}"
-      files: ["*.go", "**/*.go", "go.mod", "go.sum", "Makefile"]
-    - name: chain name
-      type: replace
       pattern: "feather-base"
-      replacement: "{{ .name }}"
-      files: ["app/app.go", "vue/package.json", "cmd/food/main.go"]
+      replacement: "{{ .name }}" # The text to replace. You may use go templates and perform arbitrary replacements.
+      files: [ "*/**" ]
     - name: account prefix
       type: replace
       pattern: "\"feath\""
