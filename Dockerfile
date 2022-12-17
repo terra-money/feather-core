@@ -6,7 +6,7 @@
 ARG BUILDPLATFORM=linux/amd64
 ARG LWVM_VERSION=v1.1.1
 
-FROM --platform=${BUILDPLATFORM} golang:1.19-alpine AS base
+FROM --platform=${BUILDPLATFORM} golang:1.18-alpine3.15 AS base
 
 ###############################################################################
 
