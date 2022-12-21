@@ -1,8 +1,7 @@
 ignore:
   - .git/
-  - transformations.yml
-  - docs/static/openapi.yml
   - .idea/
+  - transformations.yml
 inputs:
   - id: name
     text: What is the chain name? (e.g. foo)
@@ -17,11 +16,23 @@ inputs:
     text: What is the bond denom? (e.g. stake)
     type: text
 transformations:
-    - name: rename
-      type: rename
+    - name: project path
+      type: replace
+      pattern: github.com/terra-money/feather-base
+      replacement: "{{ .package_name }}"
+      files: 
+        - "*/**.go"
+        - "go.mod"
+        - "go.sum"
+    - name: chain name
+      type: replace
       pattern: "feather-base"
-      replacement: "{{ .name }}" # The text to replace. You may use go templates and perform arbitrary replacements.
-      files: [ "*/**" ]
+      replacement: "{{ .name }}"
+      files: 
+        - "*/**.go"
+        - "Makefile"
+        - "DockerFile"
+        - "vue/package.json"
     - name: account prefix
       type: replace
       pattern: "\"feath\""
@@ -37,3 +48,9 @@ transformations:
       pattern: featherbase
       replacement: "{{ .name }}"
       files: ["README.md"]
+    - name: rename cmd
+      type: rename
+      pattern: "feather-based"
+      replacement: "{{ .name }}d" # The text to replace. You may use go templates and perform arbitrary replacements.
+      files: 
+        - "*/**"
