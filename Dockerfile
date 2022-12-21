@@ -1,20 +1,21 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION="1.18"
+ARG ALPINE_VERSION="3.16"
 ARG BUILDPLATFORM=linux/amd64
-ARG RUNNER_IMAGE="gcr.io/distroless/static-debian11"
+ARG BASE_IMAGE="golang:${GO_VERSION}-alpine${ALPINE_VERSION}"
 
-FROM --platform=${BUILDPLATFORM} golang:${GO_VERSION}-alpine as base
+FROM --platform=${BUILDPLATFORM} ${BASE_IMAGE} as base
 
 ###############################################################################
 # Builder
 ###############################################################################
 
-FROM base as go-builder
+FROM base as feather-builder
 
-ARG BUILDPLATFORM
-ARG GIT_VERSION
 ARG GIT_COMMIT
+ARG GIT_VERSION
+ARG BUILDPLATFORM
 
 # NOTE: add libusb-dev to run with LEDGER_ENABLED=true
 RUN set -eux &&\
@@ -62,6 +63,10 @@ RUN set -eux &&\
     grep ${CHECKSUM} /tmp/checksums.txt; \
     rm /tmp/checksums.txt 
 
+###############################################################################
+
+FROM feather-builder as app-builder
+
 # Copy the remaining files
 COPY . .
 
@@ -85,9 +90,9 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 # ###############################################################################
 
-FROM ${RUNNER_IMAGE} as feather-base
+FROM alpine:${ALPINE_VERSION} as feather-base
 
-COPY --from=go-builder /go/bin/feather-based /usr/local/bin/feather-based
+COPY --from=app-builder /go/bin/feather-based /usr/local/bin/feather-based
 
 WORKDIR /feather-base
 
