@@ -1,8 +1,9 @@
+# yaml-language-server: $schema=http://swagger.io/v2/schema.json#
 swagger: '2.0'
 info:
   title: HTTP API Console
-  name: ''
-  description: ''
+  version: ''
+  description: 'feather-base blockchain'
 paths:
   /terra/alliances:
     get:
