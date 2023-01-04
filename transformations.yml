@@ -65,4 +65,4 @@ transformations:
       pattern: "feather-cored"
       replacement: "{{ .name }}d" 
       files: 
-        - "cmd/feather-cored"
+        - "cmd/**"
