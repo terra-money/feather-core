@@ -13,7 +13,7 @@ import (
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmtypes "github.com/tendermint/tendermint/types"
 
-	"github.com/terra-money/feather-base/app"
+	"github.com/terra-money/feather-core/app"
 )
 
 func init() {

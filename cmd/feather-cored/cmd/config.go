@@ -3,7 +3,7 @@ package cmd
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/terra-money/feather-base/app"
+	"github.com/terra-money/feather-core/app"
 )
 
 func initSDKConfig() {

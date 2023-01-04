@@ -36,8 +36,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	// this line is used by starport scaffolding # root/moduleImport
 
-	"github.com/terra-money/feather-base/app"
-	appparams "github.com/terra-money/feather-base/app/params"
+	"github.com/terra-money/feather-core/app"
+	appparams "github.com/terra-money/feather-core/app/params"
 )
 
 // NewRootCmd creates a new root command for a Cosmos SDK application

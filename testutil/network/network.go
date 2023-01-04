@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/terra-money/feather-base/app"
+	"github.com/terra-money/feather-core/app"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"

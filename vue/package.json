@@ -8,7 +8,7 @@
     "@starport/vuex": "^0.3.10",
     "buffer": "^6.0.3",
     "core-js": "^3.18.2",
-    "terra-money-feather-base-client-ts": "file:../ts-client",
+    "terra-money-feather-core-client-ts": "file:../ts-client",
     "vue": "^3.2.6",
     "vue-router": "^4.0.3",
     "vuex": "^4.0.2"

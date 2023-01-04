@@ -1,4 +1,4 @@
-module github.com/terra-money/feather-base
+module github.com/terra-money/feather-core
 
 go 1.18
 

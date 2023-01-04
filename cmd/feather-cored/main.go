@@ -6,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/server"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 
-	"github.com/terra-money/feather-base/app"
-	"github.com/terra-money/feather-base/cmd/feather-based/cmd"
+	"github.com/terra-money/feather-core/app"
+	"github.com/terra-money/feather-core/cmd/feather-cored/cmd"
 )
 
 func main() {

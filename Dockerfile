@@ -79,8 +79,8 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
         -ldflags " \
             -w -s -linkmode=external -extldflags \
             '-L/go/src/mimalloc/build -lmimalloc -Wl,-z,muldefs -static' \
-            -X github.com/cosmos/cosmos-sdk/version.Name='feather-base' \
-            -X github.com/cosmos/cosmos-sdk/version.AppName='feather-based' \
+            -X github.com/cosmos/cosmos-sdk/version.Name='feather-core' \
+            -X github.com/cosmos/cosmos-sdk/version.AppName='feather-cored' \
             #-X github.com/cosmos/cosmos-sdk/version.Version=${GIT_VERSION} \
             #-X github.com/cosmos/cosmos-sdk/version.Commit=${GIT_COMMIT} \
             -X github.com/cosmos/cosmos-sdk/version.BuildTags='netgo,muslc' \
@@ -90,10 +90,10 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 # ###############################################################################
 
-FROM alpine:${ALPINE_VERSION} as feather-base
+FROM alpine:${ALPINE_VERSION} as feather-core
 
-COPY --from=app-builder /go/bin/feather-based /usr/local/bin/feather-based
+COPY --from=app-builder /go/bin/feather-cored /usr/local/bin/feather-cored
 
-WORKDIR /feather-base
+WORKDIR /feather-core
 
-CMD ["/usr/local/bin/feather-based", "--home", "/feather-base", "start"]
+CMD ["/usr/local/bin/feather-cored", "--home", "/feather-core", "start"]

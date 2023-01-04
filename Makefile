@@ -56,8 +56,8 @@ build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 # process linker flags
 
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=feather-base \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=feather-based \
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=feather-core \
+		  -X github.com/cosmos/cosmos-sdk/version.AppName=feather-cored \
 		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X github.com/CosmWasm/wasmd/app.Bech32Prefix=feath \
@@ -80,13 +80,13 @@ include contrib/devtools/Makefile
 all: install lint test
 
 install: go.sum
-	go install -mod=readonly $(BUILD_FLAGS) ./cmd/feather-based
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/feather-cored
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-based ./cmd/feather-based
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-cored ./cmd/feather-cored
 endif
 
 build-contract-tests-hooks:
@@ -99,38 +99,38 @@ endif
 build-reproducible: build-reproducible-amd64 build-reproducible-arm64
 
 build-reproducible-amd64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-base-builder || true
-	$(DOCKER) buildx use feather-base-builder
+	$(DOCKER) buildx create --name feather-core-builder || true
+	$(DOCKER) buildx use feather-core-builder
 	$(DOCKER) buildx build \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--build-arg GIT_VERSION=$(VERSION) \
 		--build-arg GIT_COMMIT=$(COMMIT) \
 		--build-arg RUNNER_IMAGE=alpine:3.16 \
 		--platform linux/amd64 \
-		-t feather-base:local-amd64 \
+		-t feather-core:local-amd64 \
 		--load \
 		-f Dockerfile .
-	$(DOCKER) rm -f feather-based-binary || true
-	$(DOCKER) create -ti --name feather-based-binary feather-base:local-amd64
-	$(DOCKER) cp feather-based-binary:/usr/local/bin/feather-based $(BUILDDIR)/feather-based-linux-amd64
-	$(DOCKER) rm -f feather-based-binary
+	$(DOCKER) rm -f feather-cored-binary || true
+	$(DOCKER) create -ti --name feather-cored-binary feather-core:local-amd64
+	$(DOCKER) cp feather-cored-binary:/usr/local/bin/feather-cored $(BUILDDIR)/feather-cored-linux-amd64
+	$(DOCKER) rm -f feather-cored-binary
 
 build-reproducible-arm64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-base-builder  || true
-	$(DOCKER) buildx use feather-base-builder 
+	$(DOCKER) buildx create --name feather-core-builder  || true
+	$(DOCKER) buildx use feather-core-builder 
 	$(DOCKER) buildx build \
 		--build-arg GO_VERSION=$(GO_VERSION) \
 		--build-arg GIT_VERSION=$(VERSION) \
 		--build-arg GIT_COMMIT=$(COMMIT) \
 		--build-arg RUNNER_IMAGE=alpine:3.16 \
 		--platform linux/arm64 \
-		-t feather-base:local-arm64 \
+		-t feather-core:local-arm64 \
 		--load \
 		-f Dockerfile .
-	$(DOCKER) rm -f feather-based-binary || true
-	$(DOCKER) create -ti --name feather-based-binary feather-base:local-arm64
-	$(DOCKER) cp feather-based-binary:/usr/local/bin/feather-based $(BUILDDIR)/feather-based-linux-arm64
-	$(DOCKER) rm -f feather-based-binary
+	$(DOCKER) rm -f feather-cored-binary || true
+	$(DOCKER) create -ti --name feather-cored-binary feather-core:local-arm64
+	$(DOCKER) cp feather-cored-binary:/usr/local/bin/feather-cored $(BUILDDIR)/feather-cored-linux-arm64
+	$(DOCKER) rm -f feather-cored-binary
 
 ########################################
 ### Tools & dependencies
@@ -146,7 +146,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go install github.com/RobotsAndPencils/goviz@latest
-	@goviz -i ./cmd/feather-based -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/feather-cored -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/

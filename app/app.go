@@ -106,8 +106,8 @@ import (
 	dbm "github.com/tendermint/tm-db"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-	appparams "github.com/terra-money/feather-base/app/params"
-	"github.com/terra-money/feather-base/docs"
+	appparams "github.com/terra-money/feather-core/app/params"
+	"github.com/terra-money/feather-core/docs"
 
 	custombankmodule "github.com/terra-money/alliance/custom/bank"
 	custombankkeeper "github.com/terra-money/alliance/custom/bank/keeper"
@@ -120,7 +120,7 @@ import (
 
 const (
 	AccountAddressPrefix = "feath"
-	Name                 = "feather-base"
+	Name                 = "feather-core"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
