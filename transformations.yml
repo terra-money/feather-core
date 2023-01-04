@@ -2,12 +2,13 @@ ignore:
   - .git/
   - .idea/
   - transformations.yml
+
 inputs:
   - id: name
     text: What is the chain name? (e.g. foo)
     type: text
   - id: package_name
-    text: What is the package name? (e.g. github.com/chain/foo)
+    text: What is the package name? (e.g. github.com/entity/chain)
     type: text
   - id: account_prefix
     text: What is the account prefix? (e.g. feath)
@@ -26,31 +27,42 @@ transformations:
         - "go.mod"
         - "go.sum"
 
+    - name: package.json paths
+      type: replace
+      pattern: "terra-money-feather-core"
+      replacement: "{{ .package_name | replace \"github.com/\" \"\" | replace \"/\" \"-\" }}"
+      files: 
+        - "vue/package.json"
+        - "vue/package-lock.json"
+
     - name: chain name
       type: replace
       pattern: "feather-core"
       replacement: "{{ .name }}"
       files: 
         - "*/**.go"
+        - "README.md"
         - "Makefile"
         - "Dockerfile"
-        - "vue/package.json"
+        - "docs/static/openapi.yml"
 
     - name: account prefix
       type: replace
       pattern: "\"feath\""
       replacement: "\"{{ .account_prefix }}\""
-      files: ["app/app.go"]
+      files:
+        - "app/app.go"
 
     - name: bond denom
       type: replace
       pattern: stake
       replacement: "{{ .bond_denom }}"
-      files: ["config.yml"]
+      files: 
+        - "config.yml"
 
     - name: rename cmd
       type: rename
       pattern: "feather-cored"
       replacement: "{{ .name }}d" 
       files: 
-        - "*/**"
+        - "cmd/feather-cored"
