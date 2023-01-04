@@ -15,6 +15,7 @@ inputs:
   - id: bond_denom
     text: What is the bond denom? (e.g. stake)
     type: text
+
 transformations:
     - name: project path
       type: replace
@@ -24,6 +25,7 @@ transformations:
         - "*/**.go"
         - "go.mod"
         - "go.sum"
+
     - name: chain name
       type: replace
       pattern: "feather-core"
@@ -31,26 +33,24 @@ transformations:
       files: 
         - "*/**.go"
         - "Makefile"
-        - "DockerFile"
+        - "Dockerfile"
         - "vue/package.json"
+
     - name: account prefix
       type: replace
       pattern: "\"feath\""
       replacement: "\"{{ .account_prefix }}\""
       files: ["app/app.go"]
+
     - name: bond denom
       type: replace
       pattern: stake
       replacement: "{{ .bond_denom }}"
       files: ["config.yml"]
-    - name: readme
-      type: replace
-      pattern: featherbase
-      replacement: "{{ .name }}"
-      files: ["README.md"]
+
     - name: rename cmd
       type: rename
       pattern: "feather-cored"
-      replacement: "{{ .name }}d" # The text to replace. You may use go templates and perform arbitrary replacements.
+      replacement: "{{ .name }}d" 
       files: 
         - "*/**"
