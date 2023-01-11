@@ -94,6 +94,6 @@ FROM alpine:${ALPINE_VERSION} as feather-core
 
 COPY --from=app-builder /go/bin/feather-cored /usr/local/bin/feather-cored
 
-WORKDIR /feather-core
+WORKDIR /app
 
-CMD ["/usr/local/bin/feather-cored", "--home", "/feather-core", "start"]
+CMD ["/usr/local/bin/feather-cored", "--home", "/app", "start"]
