@@ -2,12 +2,13 @@ package app
 
 import (
 	"fmt"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmTypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
