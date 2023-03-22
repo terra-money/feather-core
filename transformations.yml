@@ -18,51 +18,51 @@ inputs:
     type: text
 
 transformations:
-    - name: project path
-      type: replace
-      pattern: github.com/terra-money/feather-core
-      replacement: "{{ .package_name }}"
-      files: 
-        - "*/**.go"
-        - "go.mod"
-        - "go.sum"
+  - name: project path
+    type: replace
+    pattern: github.com/terra-money/feather-core
+    replacement: "{{ .package_name }}"
+    files:
+      - "*/**.go"
+      - "go.mod"
+      - "go.sum"
 
-    - name: package.json paths
-      type: replace
-      pattern: "terra-money-feather-core"
-      replacement: "{{ .package_name | replace \"github.com/\" \"\" | replace \"/\" \"-\" }}"
-      files: 
-        - "vue/package.json"
-        - "vue/package-lock.json"
+  - name: package.json paths
+    type: replace
+    pattern: "terra-money-feather-core"
+    replacement: '{{ .package_name | replace "github.com/" "" | replace "/" "-" }}'
+    files:
+      - "vue/package.json"
+      - "vue/package-lock.json"
 
-    - name: chain name
-      type: replace
-      pattern: "feather-core"
-      replacement: "{{ .name }}"
-      files: 
-        - "*/**.go"
-        - "README.md"
-        - "Makefile"
-        - "Dockerfile"
-        - "docs/static/openapi.yml"
+  - name: chain name
+    type: replace
+    pattern: "feather-core"
+    replacement: "{{ .name }}"
+    files:
+      - "*/**.go"
+      - "README.md"
+      - "Makefile"
+      - "Dockerfile"
+      - "docs/static/openapi.yml"
 
-    - name: account prefix
-      type: replace
-      pattern: "\"feath\""
-      replacement: "\"{{ .account_prefix }}\""
-      files:
-        - "app/app.go"
+  - name: account prefix
+    type: replace
+    pattern: '"feath"'
+    replacement: '"{{ .account_prefix }}"'
+    files:
+      - "app/app.go"
 
-    - name: bond denom
-      type: replace
-      pattern: stake
-      replacement: "{{ .bond_denom }}"
-      files: 
-        - "config.yml"
+  - name: bond denom
+    type: replace
+    pattern: stake
+    replacement: "{{ .bond_denom }}"
+    files:
+      - "config.yml"
 
-    - name: rename cmd
-      type: rename
-      pattern: "feather-cored"
-      replacement: "{{ .name }}d" 
-      files: 
-        - "cmd/**"
+  - name: rename cmd
+    type: rename
+    pattern: "feather-cored"
+    replacement: "{{ .name }}d"
+    files:
+      - "cmd/**"
