@@ -29,7 +29,7 @@ transformations:
 
   - name: package.json paths
     type: replace
-    pattern: "terra-money-feather-core"
+    pattern: terra-money-feather-core
     replacement: '{{ .go_module | replace "github.com/" "" | replace "/" "-" }}'
     files:
       - "vue/package.json"
@@ -37,7 +37,7 @@ transformations:
 
   - name: chain name
     type: replace
-    pattern: "feather-core"
+    pattern: feather-core
     replacement: "{{ .chain_name }}"
     files:
       - "*/**.go"
@@ -48,17 +48,18 @@ transformations:
 
   - name: rename cmd
     type: rename
-    pattern: "feather-cored"
+    pattern: feather-cored
     replacement: "{{ .chain_name }}d"
     files:
       - "cmd/**"
 
   - name: account prefix
     type: replace
-    pattern: '"feath"'
-    replacement: '"{{ .account_prefix }}"'
+    pattern: feath
+    replacement: "{{ .account_prefix }}"
     files:
       - "app/app.go"
+      - "Makefile"
 
   - name: bond denom
     type: replace
