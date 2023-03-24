@@ -1,0 +1,12 @@
+{
+  "app_state": {
+    "bank": {
+      "balances": []
+    },
+    "staking": {
+      "params": {
+        "bond_denom": "stake"
+      }
+    }
+  }
+}
