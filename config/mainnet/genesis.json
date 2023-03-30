@@ -1,7 +1,13 @@
 {
   "app_state": {
     "bank": {
-      "balances": []
+      "balances": [],
+      "supply": [
+        {
+          "denom": "stake",
+          "amount": "1000000000000000"
+        }
+      ]
     },
     "staking": {
       "params": {
