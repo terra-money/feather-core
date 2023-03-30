@@ -2,17 +2,38 @@
   "accounts": [
     {
       "name": "alice",
-      "coins": ["20000token", "200000000stake"]
+      "coins": [
+        {
+          "denom": "token",
+          "amount": "20000"
+        },
+        {
+          "denom": "stake",
+          "amount": "200000000"
+        }
+      ]
     },
     {
       "name": "bob",
-      "coins": ["10000token", "100000000stake"]
+      "coins": [
+        {
+          "denom": "token",
+          "amount": "10000"
+        },
+        {
+          "denom": "stake",
+          "amount": "100000000"
+        }
+      ]
     }
   ],
   "validators": [
     {
       "name": "alice",
-      "bonded": "100000000stake"
+      "bonded": {
+        "denom": "stake",
+        "amount": "100000000"
+      }
     }
   ]
 }
