@@ -45,6 +45,7 @@ transformations:
       - "Makefile"
       - "Dockerfile"
       - "docs/static/openapi.yml"
+      - "config/**/genesis.json"
 
   - name: rename cmd
     type: rename
