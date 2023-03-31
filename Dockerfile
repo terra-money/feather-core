@@ -18,8 +18,8 @@ ARG GIT_VERSION
 ARG BUILDPLATFORM
 
 # NOTE: add libusb-dev to run with LEDGER_ENABLED=true
-RUN set -eux &&
-    apk update &&
+RUN set -eux && \
+    apk update && \
     apk add --no-cache \
         ca-certificates \
         linux-headers \
@@ -29,12 +29,12 @@ RUN set -eux &&
 
 # install mimalloc for musl
 WORKDIR ${GOPATH}/src/mimalloc
-RUN set -eux &&
-    git clone --depth 1 https://github.com/microsoft/mimalloc . &&
-    mkdir -p build &&
-    cd build &&
-    cmake .. &&
-    make -j$(nproc) &&
+RUN set -eux && \
+    git clone --depth 1 https://github.com/microsoft/mimalloc . && \
+    mkdir -p build && \
+    cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
     make install
 
 # download dependencies to cache as layer
@@ -45,22 +45,22 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
     go mod download -x
 
 # Cosmwasm - Download correct libwasmvm version
-RUN set -eux &&
-    WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm | cut -d ' ' -f 2) &&
-    WASMVM_DOWNLOADS="https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}"
-wget ${WASMVM_DOWNLOADS}/checksums.txt -O /tmp/checksums.txt
-if [ ${BUILDPLATFORM} = "linux/amd64" ]; then
-    WASMVM_URL="${WASMVM_DOWNLOADS}/libwasmvm_muslc.x86_64.a"
-elif [ ${BUILDPLATFORM} = "darwin/arm64" ]; then
-    WASMVM_URL="${WASMVM_DOWNLOADS}/libwasmvm_muslc.aarch64.a"
-else
-    echo "Unsupported Build Platfrom ${BUILDPLATFORM}"
-    exit 1
-fi
-wget ${WASMVM_URL} -O /lib/libwasmvm_muslc.a
-CHECKSUM=$(sha256sum /lib/libwasmvm_muslc.a | cut -d" " -f1)
-grep ${CHECKSUM} /tmp/checksums.txt
-rm /tmp/checksums.txt
+RUN set -eux && \
+    WASMVM_VERSION=$(go list -m github.com/CosmWasm/wasmvm | cut -d ' ' -f 2) && \
+    WASMVM_DOWNLOADS="https://github.com/CosmWasm/wasmvm/releases/download/${WASMVM_VERSION}"; \
+    wget ${WASMVM_DOWNLOADS}/checksums.txt -O /tmp/checksums.txt; \
+    if [ ${BUILDPLATFORM} = "linux/amd64" ]; then \
+        WASMVM_URL="${WASMVM_DOWNLOADS}/libwasmvm_muslc.x86_64.a"; \
+    elif [ ${BUILDPLATFORM} = "darwin/arm64" ]; then \
+        WASMVM_URL="${WASMVM_DOWNLOADS}/libwasmvm_muslc.aarch64.a"; \
+    else \
+        echo "Unsupported Build Platfrom ${BUILDPLATFORM}"; \
+        exit 1; \
+    fi; \
+    wget ${WASMVM_URL} -O /lib/libwasmvm_muslc.a; \
+    CHECKSUM=`sha256sum /lib/libwasmvm_muslc.a | cut -d" " -f1`; \
+    grep ${CHECKSUM} /tmp/checksums.txt; \
+    rm /tmp/checksums.txt
 
 ###############################################################################
 
