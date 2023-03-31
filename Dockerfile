@@ -30,7 +30,7 @@ RUN set -eux && \
 # install mimalloc for musl
 WORKDIR ${GOPATH}/src/mimalloc
 RUN set -eux && \
-    git clone --depth 1 https://github.com/microsoft/mimalloc . && \
+    git clone -b v2.0.9 --depth 1 https://github.com/microsoft/mimalloc . && \
     mkdir -p build && \
     cd build && \
     cmake .. && \
