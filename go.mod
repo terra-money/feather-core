@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/CosmWasm/wasmd v0.30.0
-	github.com/cosmos/cosmos-sdk v0.46.11
+	github.com/cosmos/cosmos-sdk v0.47.0
 	github.com/cosmos/ibc-go/v6 v6.1.0
 	github.com/spf13/cast v1.5.0
 	github.com/spf13/cobra v1.6.1
