@@ -37,7 +37,7 @@ func TestFullAppSimulation(t *testing.T) {
 		simulationDirPrefix,
 		simulationDbName,
 		simcli.FlagVerboseValue,
-		simcli.FlagEnabledValue,
+		!simcli.FlagEnabledValue,
 	)
 	if skip {
 		t.Skip("skipping application simulation")
