@@ -1,0 +1,16 @@
+{
+    "chain_id": "feather-1",
+    "app_name": "feather-core",
+    "app_binary_name": "feather-cored",
+    "account_address_prefix": "feath",
+    "account_pubkey_prefix": "feathpub",
+    "validator_address_prefix": "feathvaloper",
+    "validator_pubkey_prefix": "feathvaloperpub",
+    "consensus_node_address_prefix": "feathvalcons",
+    "consensus_node_pubkey_prefix": "feathvalconspub",
+    "bond_denom": "stake",
+    "unbonding_time": "1814400s",
+    "max_validators": 130,
+    "max_entries": 7,
+    "min_commission_rate": "0"
+}

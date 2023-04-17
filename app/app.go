@@ -109,9 +109,17 @@ import (
 	// alliancemoduletypes "github.com/terra-money/alliance/x/alliance/types"
 )
 
-const (
-	AccountAddressPrefix = "feath"
-	Name                 = "feather-core"
+// DO NOT change the names of these variables!
+// TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
+var (
+	AccountAddressPrefix       = "feath"
+	AccountPubKeyPrefix        = "feathpub"
+	ValidatorAddressPrefix     = "feathvaloper"
+	ValidatorPubKeyPrefix      = "feathvaloperpub"
+	ConsensusNodeAddressPrefix = "feathvalcons"
+	ConsensusNodePubKeyPrefix  = "feathvalconspub"
+	BondDenom                  = "featherstake"
+	AppName                    = "feather-core"
 )
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
@@ -198,7 +206,7 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
+	DefaultNodeHome = filepath.Join(userHomeDir, "."+AppName)
 }
 
 // App extends an ABCI application, but with most of its parameters exported.
@@ -276,7 +284,7 @@ func New(
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 
 	bApp := baseapp.NewBaseApp(
-		Name,
+		AppName,
 		logger,
 		db,
 		encodingConfig.TxConfig.TxDecoder(),
@@ -991,7 +999,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
+	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(AppName, "/static/openapi.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
