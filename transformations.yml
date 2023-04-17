@@ -26,6 +26,7 @@ transformations:
       - "*/**.go"
       - "go.mod"
       - "go.sum"
+      - "Makefile"
 
   - name: package.json paths
     type: replace
@@ -40,31 +41,21 @@ transformations:
     pattern: feather-core
     replacement: "{{ .chain_name }}"
     files:
-      - "*/**.go"
       - "README.md"
-      - "Makefile"
-      - "Dockerfile"
       - "docs/static/openapi.yml"
-      - "config/**/genesis.json"
-
-  - name: rename cmd
-    type: rename
-    pattern: feather-cored
-    replacement: "{{ .chain_name }}d"
-    files:
-      - "cmd/**"
+      - "config/mainnet/config.json"
 
   - name: account prefix
     type: replace
-    pattern: feath
+    pattern: pfeath
     replacement: "{{ .account_prefix }}"
     files:
-      - "app/app.go"
-      - "Makefile"
+      - "config/mainnet/config.json"
 
   - name: bond denom
     type: replace
     pattern: stake
     replacement: "{{ .bond_denom }}"
     files:
-      - "config/**/*.json"
+      - "config/localnet/config.json"
+      - "config/mainnet/config.json"

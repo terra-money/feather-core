@@ -64,7 +64,7 @@ func TestFullAppSimulation(t *testing.T) {
 		appOptions,
 		baseapp.SetChainID(simulationAppChainID),
 	)
-	require.Equal(t, Name, app.Name())
+	require.Equal(t, AppName, app.Name())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
