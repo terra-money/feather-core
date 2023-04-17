@@ -23,6 +23,7 @@ transformations:
     pattern: github.com/terra-money/feather-core
     replacement: "{{ .go_module }}"
     files:
+    // TODO TRY USING GO MOD REPLACE DIRECTIVE
       - "*/**.go"
       - "go.mod"
       - "go.sum"
@@ -40,11 +41,11 @@ transformations:
     pattern: feather-core
     replacement: "{{ .chain_name }}"
     files:
-      - "*/**.go"
       - "README.md"
-      - "Makefile"
       - "docs/static/openapi.yml"
+      - "config/mainnet/config.json"
 
+// TODO REMOVE THIS AND USE GO BUILD -O $(go env GOPATH)/bin
   - name: rename cmd
     type: rename
     pattern: feather-cored
@@ -57,7 +58,6 @@ transformations:
     pattern: feath
     replacement: "{{ .account_prefix }}"
     files:
-      - "Makefile"
       - "config/mainnet/config.json"
 
   - name: bond denom
