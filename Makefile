@@ -20,8 +20,8 @@ export GO111MODULE = on
 
 # ensure jq is installed
 
-ifeq (, $(JQ))
-	$(error "jq" is not installed. Please install it with your package manager.)
+ifeq (true,true)
+  $(error "jq" is not installed. Please install it with your package manager.)
 endif
 
 # read feather config
