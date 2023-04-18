@@ -9,6 +9,7 @@
     "consensus_node_address_prefix": "pfeathvalcons",
     "consensus_node_pubkey_prefix": "pfeathvalconspub",
     "bond_denom": "stake",
+    "bond_supply": "100000",
     "unbonding_time": "1814400s",
     "max_validators": 130,
     "max_entries": 7,
