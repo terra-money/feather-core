@@ -165,7 +165,7 @@ build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-cored ./cmd/feather
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-core ./cmd/feather-core
 endif
 
 build-contract-tests-hooks:
@@ -189,10 +189,10 @@ build-reproducible-amd64: go.sum $(BUILDDIR)/
 		-t feather-core:local-amd64 \
 		--load \
 		-f Dockerfile .
-	$(DOCKER) rm -f feather-cored-binary || true
-	$(DOCKER) create -ti --name feather-cored-binary feather-core:local-amd64
-	$(DOCKER) cp feather-cored-binary:/usr/local/bin/feather-cored $(BUILDDIR)/feather-cored-linux-amd64
-	$(DOCKER) rm -f feather-cored-binary
+	$(DOCKER) rm -f feather-core-binary || true
+	$(DOCKER) create -ti --name feather-core-binary feather-core:local-amd64
+	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-amd64
+	$(DOCKER) rm -f feather-core-binary
 
 build-reproducible-arm64: go.sum $(BUILDDIR)/
 	$(DOCKER) buildx create --name feather-core-builder  || true
@@ -206,10 +206,10 @@ build-reproducible-arm64: go.sum $(BUILDDIR)/
 		-t feather-core:local-arm64 \
 		--load \
 		-f Dockerfile .
-	$(DOCKER) rm -f feather-cored-binary || true
-	$(DOCKER) create -ti --name feather-cored-binary feather-core:local-arm64
-	$(DOCKER) cp feather-cored-binary:/usr/local/bin/feather-cored $(BUILDDIR)/feather-cored-linux-arm64
-	$(DOCKER) rm -f feather-cored-binary
+	$(DOCKER) rm -f feather-core-binary || true
+	$(DOCKER) create -ti --name feather-core-binary feather-core:local-arm64
+	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-arm64
+	$(DOCKER) rm -f feather-core-binary
 
 ########################################
 ### Tools & dependencies
@@ -225,7 +225,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go install github.com/RobotsAndPencils/goviz@latest
-	@goviz -i ./cmd/feather -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/feather-core -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/
