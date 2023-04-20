@@ -6,4 +6,4 @@ release/
 .DS_Store
 dist
 build
-
+vendor/

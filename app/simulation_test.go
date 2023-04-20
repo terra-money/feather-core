@@ -4,14 +4,12 @@ import (
 	"os"
 	"testing"
 
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/server"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	simcli "github.com/cosmos/cosmos-sdk/x/simulation/client/cli"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,21 +25,23 @@ func init() {
 }
 
 // Running as a go test:
-// `go test -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit true Verbose true -Enabled true“
+//
+// go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1 -Seed 40
 func TestFullAppSimulation(t *testing.T) {
 	config := simcli.NewConfigFromFlags()
 	config.ChainID = simulationAppChainID
 
-	db, dir, logger, skip, err := simtestutil.SetupSimulation(
+	if !simcli.FlagEnabledValue {
+		t.Skip("skipping application simulation")
+	}
+
+	db, dir, logger, _, err := simtestutil.SetupSimulation(
 		config,
 		simulationDirPrefix,
 		simulationDbName,
 		simcli.FlagVerboseValue,
-		!simcli.FlagEnabledValue,
+		true, // Don't use this as it is confusing
 	)
-	if skip {
-		t.Skip("skipping application simulation")
-	}
 	require.NoError(t, err, "simulation setup failed")
 
 	defer func() {
@@ -49,19 +49,15 @@ func TestFullAppSimulation(t *testing.T) {
 		require.NoError(t, os.RemoveAll(dir))
 	}()
 
-	appOptions := make(simtestutil.AppOptionsMap, 0)
-	appOptions[flags.FlagHome] = DefaultNodeHome
-	appOptions[server.FlagInvCheckPeriod] = simcli.FlagPeriodValue // how often to check for broken invariants in x/crisis
-
 	app := New(logger,
 		db,
 		nil,
 		true,
 		map[int64]bool{},
 		DefaultNodeHome,
-		uint(1),
+		simcli.FlagPeriodValue,
 		MakeEncodingConfig(),
-		appOptions,
+		simtestutil.EmptyAppOptions{},
 		baseapp.SetChainID(simulationAppChainID),
 	)
 	require.Equal(t, AppName, app.Name())
@@ -74,7 +70,7 @@ func TestFullAppSimulation(t *testing.T) {
 		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
 		simtypes.RandomAccounts,
 		simtestutil.SimulationOperations(app, app.AppCodec(), config),
-		map[string]bool{},
+		app.BankKeeper.GetBlockedAddresses(),
 		config,
 		app.AppCodec(),
 	)
