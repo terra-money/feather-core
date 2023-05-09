@@ -125,6 +125,10 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
+	ibchooks "github.com/terra-money/feather-core/x/ibc-hooks"
+	ibchookskeeper "github.com/terra-money/feather-core/x/ibc-hooks/keeper"
+	ibchookstypes "github.com/terra-money/feather-core/x/ibc-hooks/types"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -203,6 +207,7 @@ var (
 		ibc.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
+		ibchooks.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		alliance.AppModuleBasic{},
 	)
@@ -258,6 +263,12 @@ type App struct {
 	WasmKeeper            wasm.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	AllianceKeeper        alliancekeeper.Keeper
+
+	// IBC hooks
+	IBCHooksKeeper   ibchookskeeper.Keeper
+	TransferStack    ibchooks.IBCMiddleware
+	Ics20WasmHooks   ibchooks.WasmHooks
+	HooksICS4Wrapper ibchooks.ICS4Middleware
 
 	// ModuleManager is the module manager
 	ModuleManager *module.Manager
@@ -721,6 +732,20 @@ func New(
 	modules = append(modules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 	simModules = append(simModules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 
+	// Configure the hooks keeper
+	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
+		app.keys[ibchookstypes.StoreKey],
+	)
+	app.Ics20WasmHooks = ibchooks.NewWasmHooks(&app.IBCHooksKeeper, nil, AccountAddressPrefix) // The contract keeper needs to be set later
+	app.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+		app.IBCKeeper.ChannelKeeper,
+		app.Ics20WasmHooks,
+	)
+	// Hooks Middleware
+	transferIBCModule := ibctransfer.NewIBCModule(app.TransferKeeper)
+	app.TransferStack = ibchooks.NewIBCMiddleware(&transferIBCModule, &app.HooksICS4Wrapper)
+	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
+
 	// 'alliance' module - depends on
 	// 1. 'auth'
 	// 2. 'bank'
@@ -782,6 +807,7 @@ func New(
 		paramstypes.ModuleName,
 		vestingtypes.ModuleName,
 		nft.ModuleName,
+		ibchookstypes.ModuleName,
 		wasm.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
@@ -810,6 +836,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		nft.ModuleName,
+		ibchookstypes.ModuleName,
 		wasm.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
@@ -843,6 +870,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		nft.ModuleName,
+		ibchookstypes.ModuleName,
 		wasm.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
