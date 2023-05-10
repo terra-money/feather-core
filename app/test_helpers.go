@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	"math/rand" /* #nosec */
 	"os"
 	"path/filepath"
 	"testing"
@@ -325,6 +325,7 @@ func SignAndDeliverWithoutCommit(
 ) (sdk.GasInfo, *sdk.Result, error) {
 	t.Helper()
 	tx, err := simtestutil.GenSignedMockTx(
+		/* #nosec */
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,

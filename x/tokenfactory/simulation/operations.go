@@ -1,7 +1,7 @@
 package simulation
 
 import (
-	"math/rand"
+	"math/rand" /* #nosec */
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
