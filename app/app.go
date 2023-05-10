@@ -12,6 +12,8 @@ import (
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/spf13/cast"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -129,6 +131,12 @@ import (
 	ibchookskeeper "github.com/terra-money/feather-core/x/ibc-hooks/keeper"
 	ibchookstypes "github.com/terra-money/feather-core/x/ibc-hooks/types"
 
+	// Token Factory for sdk 47
+	"github.com/terra-money/feather-core/x/tokenfactory"
+	tokenfactorybindings "github.com/terra-money/feather-core/x/tokenfactory/bindings"
+	tokenfactorykeeper "github.com/terra-money/feather-core/x/tokenfactory/keeper"
+	tokenfactorytypes "github.com/terra-money/feather-core/x/tokenfactory/types"
+
 	"github.com/CosmWasm/wasmd/x/wasm"
 	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 
@@ -142,6 +150,8 @@ import (
 	"github.com/terra-money/feather-core/app/openapiconsole"
 	appparams "github.com/terra-money/feather-core/app/params"
 	"github.com/terra-money/feather-core/docs"
+
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
 // DO NOT change the names of these variables!
@@ -208,6 +218,7 @@ var (
 		ibctransfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		ibchooks.AppModuleBasic{},
+		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		alliance.AppModuleBasic{},
 	)
@@ -263,6 +274,7 @@ type App struct {
 	WasmKeeper            wasm.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	AllianceKeeper        alliancekeeper.Keeper
+	TokenFactoryKeeper    tokenfactorykeeper.Keeper
 
 	// IBC hooks
 	IBCHooksKeeper   ibchookskeeper.Keeper
@@ -606,6 +618,21 @@ func New(
 	govLegacyRouter.AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
 	modules = append(modules, upgrade.NewAppModule(app.UpgradeKeeper))
 
+	// 'tokenfactory' module - depends on
+	// 1. 'auth'
+	// 2. 'bank'
+	// 3. 'distr'
+	app.keys[tokenfactorytypes.StoreKey] = storetypes.NewKVStoreKey(tokenfactorytypes.StoreKey)
+	app.MountStores(app.keys[tokenfactorytypes.StoreKey])
+	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
+		app.keys[tokenfactorytypes.StoreKey],
+		app.ParamsKeeper.Subspace(tokenfactorytypes.ModuleName),
+		app.AuthKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
+	)
+	modules = append(modules, tokenfactory.NewAppModule(app.TokenFactoryKeeper, app.AuthKeeper, app.BankKeeper))
+
 	// 'ibc' module - depends on
 	// 1. 'staking'
 	// 2. 'upgrade'
@@ -725,14 +752,20 @@ func New(
 		app.GRPCQueryRouter(),
 		filepath.Join(homePath, "wasm"),
 		wasmConfig,
-		"iterator,staking,stargate,cosmwasm_1_1", // TODO: Find out what this configures
+		"iterator,staking,stargate,token_factory,cosmwasm_1_1", // TODO: Find out what this configures
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		GetWasmOpts(app, appOpts)...,
 	)
 	govLegacyRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, wasm.EnableAllProposals))
 	modules = append(modules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 	simModules = append(simModules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 
-	// Configure the hooks keeper
+	// 'ibc-hooks' module - depends on
+	// 1. 'auth'
+	// 2. 'bank'
+	// 3. 'distr'
+	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
+	app.MountStores(app.keys[ibchookstypes.StoreKey])
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
 		app.keys[ibchookstypes.StoreKey],
 	)
@@ -753,6 +786,7 @@ func New(
 	// 4. 'distribution'
 	// 5. 'gov'
 	app.BankKeeper.RegisterKeepers(app.AllianceKeeper, app.StakingKeeper)
+	app.AuthKeeper.GetModulePermissions()[tokenfactorytypes.ModuleName] = authtypes.NewPermissionsForAddress(tokenfactorytypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
 	app.AuthKeeper.GetModulePermissions()[alliancetypes.ModuleName] = authtypes.NewPermissionsForAddress(alliancetypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
 	app.AuthKeeper.GetModulePermissions()[alliancetypes.RewardsPoolName] = authtypes.NewPermissionsForAddress(alliancetypes.RewardsPoolName, nil)
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(alliancetypes.RewardsPoolName).String()] = true
@@ -809,6 +843,7 @@ func New(
 		nft.ModuleName,
 		ibchookstypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
@@ -838,6 +873,7 @@ func New(
 		nft.ModuleName,
 		ibchookstypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
@@ -872,6 +908,7 @@ func New(
 		nft.ModuleName,
 		ibchookstypes.ModuleName,
 		wasm.ModuleName,
+		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
@@ -920,6 +957,17 @@ func New(
 	}
 
 	return app
+}
+
+// GetWasmOpts build wasm options
+func GetWasmOpts(app *App, appOpts servertypes.AppOptions) []wasm.Option {
+	var wasmOpts []wasm.Option
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+	wasmOpts = append(wasmOpts, tokenfactorybindings.RegisterCustomPlugins(&app.BankKeeper, &app.TokenFactoryKeeper)...)
+
+	return wasmOpts
 }
 
 // Name returns the name of the App
