@@ -280,7 +280,10 @@ func SimulateMsgBurn(
 		}
 
 		// Rand burn amount
-		amount, _ := simtypes.RandPositiveInt(r, accountBalance.Amount)
+		amount, err := simtypes.RandPositiveInt(r, accountBalance.Amount)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.MsgBurn{}.Type(), "err burning random amount"), nil, err
+		}
 		burnAmount := sdk.NewCoin(denom, amount)
 
 		// Create msg
@@ -330,7 +333,7 @@ func SimulateMsgMint(
 		// Rand mint amount
 		mintAmount, err := simtypes.RandPositiveInt(r, sdk.NewIntFromUint64(100_000_000))
 		if err != nil {
-			return simtypes.NoOpMsg(types.ModuleName, types.MsgMint{}.Type(), "err minting random aamount"), nil, err
+			return simtypes.NoOpMsg(types.ModuleName, types.MsgMint{}.Type(), "err minting random amount"), nil, err
 		}
 
 		// Create msg mint
