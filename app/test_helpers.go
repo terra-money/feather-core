@@ -108,7 +108,10 @@ func setup(tb testing.TB, chainID string, withGenesis bool, invCheckPeriod uint,
 
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	require.NoError(tb, err)
-	tb.Cleanup(func() { snapshotDB.Close() })
+	tb.Cleanup(func() {
+		err := snapshotDB.Close()
+		require.NoError(tb, err)
+	})
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder

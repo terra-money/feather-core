@@ -328,7 +328,10 @@ func SimulateMsgMint(
 		}
 
 		// Rand mint amount
-		mintAmount, _ := simtypes.RandPositiveInt(r, sdk.NewIntFromUint64(100_000_000))
+		mintAmount, err := simtypes.RandPositiveInt(r, sdk.NewIntFromUint64(100_000_000))
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.MsgMint{}.Type(), "err minting random aamount"), nil, err
+		}
 
 		// Create msg mint
 		msg := types.MsgMint{

@@ -48,7 +48,10 @@ func (m MsgCreateDenom) GetSignBytes() []byte {
 }
 
 func (m MsgCreateDenom) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }
 
