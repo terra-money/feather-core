@@ -1,13 +1,10 @@
 syntax = "proto3";
 package feather_connect;
 
-import "alliance/alliance.proto";
-import "alliance/params.proto";
-import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+import "feather_connect/params.proto";
 
 option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";
 
 // GenesisState defines the module's genesis state.
-message GenesisState {
-  Params params = 1 [(gogoproto.nullable) = false];
-}
+message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }

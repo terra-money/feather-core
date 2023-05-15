@@ -1,8 +1,10 @@
 syntax = "proto3";
 package feather_connect;
 
-import "alliance/params.proto";
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
 import "alliance/alliance.proto";
+import "feather_connect/params.proto";
 
 option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";
 
@@ -12,8 +14,8 @@ service Query {
   }
 }
 
-message QueryParamsRequest { }
+message QueryParamsRequest {}
 
 message QueryParamsResponse {
-  Params params = 1 [(gogoproto.nullable) = false];
+  Params params = 1 [ (gogoproto.nullable) = false ];
 }

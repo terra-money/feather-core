@@ -9,17 +9,24 @@ import (
 
 // ValidateGenesis
 func ValidateGenesis(data *types.GenesisState) error {
+	if data.Params.BlockHeight < 1 {
+		panic(fmt.Errorf("blockHeight cannot be less than 1 on genesis state"))
+	}
+
+	if err := sdk.ValidateDenom(data.Params.BaseDenom); err != nil {
+		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
+	}
+
 	params := data.Params.Alliance
 
 	if len(params.Title) == 0 {
 		panic(fmt.Errorf("title is empty on genesis state"))
-
 	}
 
 	if len(params.Description) == 0 {
 		panic(fmt.Errorf("description is empty on genesis state"))
-
 	}
+
 	if err := sdk.ValidateDenom(params.Denom); err != nil {
 		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
 	}

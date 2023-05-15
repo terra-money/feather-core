@@ -16,16 +16,6 @@ var (
 	Alliance    = []byte("alliance")
 )
 
-type Params struct {
-	BlockHeight int64                                   `json:"reward_delay_time" yaml:"reward_delay_time"`
-	BaseDenom   string                                  `json:"take_rate_claim_interval" yaml:"take_rate_claim_interval"`
-	Alliance    alliancetypes.MsgCreateAllianceProposal `json:"last_take_rate_claim_time" yaml:"last_take_rate_claim_time"`
-}
-
-type GenesisState struct {
-	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-}
-
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
