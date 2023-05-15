@@ -147,6 +147,9 @@ import (
 	alliancekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 	alliancetypes "github.com/terra-money/alliance/x/alliance/types"
 
+	featherconnect "github.com/terra-money/feather-core/app/feather_connect"
+	featherconnectkeeper "github.com/terra-money/feather-core/app/feather_connect/keeper"
+	featherconnecttypes "github.com/terra-money/feather-core/app/feather_connect/types"
 	"github.com/terra-money/feather-core/app/openapiconsole"
 	appparams "github.com/terra-money/feather-core/app/params"
 	"github.com/terra-money/feather-core/docs"
@@ -275,6 +278,7 @@ type App struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	AllianceKeeper        alliancekeeper.Keeper
 	TokenFactoryKeeper    tokenfactorykeeper.Keeper
+	FeatherConnectKeeper  featherconnectkeeper.Keeper
 
 	// IBC hooks
 	IBCHooksKeeper   ibchookskeeper.Keeper
@@ -806,6 +810,16 @@ func New(
 	modules = append(modules, alliance.NewAppModule(cdc, app.AllianceKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, interfaceRegistry))
 	simModules = append(simModules, alliance.NewAppModule(cdc, app.AllianceKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, interfaceRegistry))
 
+	// 'featherconnectkeeper' module - depends on
+	// 1. 'ibc'
+	// 2. 'ibc transfer'
+	// 3. 'alliance'
+	app.FeatherConnectKeeper = featherconnectkeeper.NewKeeper(
+		*app.IBCKeeper,
+		app.TransferKeeper,
+		app.AllianceKeeper,
+	)
+	modules = append(modules, featherconnect.NewAppModule(app.FeatherConnectKeeper))
 	/****  Module Options ****/
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -845,6 +859,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
+		featherconnecttypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -875,6 +890,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
+		featherconnecttypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -910,6 +926,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
+		featherconnecttypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
