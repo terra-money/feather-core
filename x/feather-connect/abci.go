@@ -1,36 +1,16 @@
-package keeper
+package feather_connect
 
 import (
 	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
-	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	alliancekeeper "github.com/terra-money/alliance/x/alliance/keeper"
-	"github.com/terra-money/feather-core/app/feather_connect/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/terra-money/feather-core/x/feather-connect/keeper"
+	"github.com/terra-money/feather-core/x/feather-connect/types"
 )
 
-type Keeper struct {
-	IbcKeeper         ibckeeper.Keeper
-	IbcTransferKeeper ibctransferkeeper.Keeper
-	AllianceKeeper    alliancekeeper.Keeper
-}
-
-func NewKeeper(
-	ibcKeeper ibckeeper.Keeper,
-	ibcTransferKeeper ibctransferkeeper.Keeper,
-	allianceKeeper alliancekeeper.Keeper,
-) Keeper {
-	return Keeper{
-		IbcKeeper:         ibcKeeper,
-		IbcTransferKeeper: ibcTransferKeeper,
-		AllianceKeeper:    allianceKeeper,
-	}
-}
-
-func EndBlock(ctx sdk.Context, k Keeper) []abci.ValidatorUpdate {
+func EndBlock(ctx sdk.Context, k keeper.Keeper) []abci.ValidatorUpdate {
 	conf := types.NewVerifierConfig()
 
 	if ctx.BlockHeight() != conf.BlockHeight {
@@ -40,7 +20,7 @@ func EndBlock(ctx sdk.Context, k Keeper) []abci.ValidatorUpdate {
 	channels := k.IbcKeeper.ChannelKeeper.GetAllChannels(ctx)
 	for _, channel := range channels {
 
-		if channel.PortId == ibctransfer.ModuleName {
+		if channel.PortId == ibctransfertypes.ModuleName {
 			clientState, _ := k.IbcKeeper.ClientKeeper.GetClientState(ctx, channel.ConnectionHops[0])
 
 			if clientState.GetLatestHeight().GetRevisionHeight() == uint64(conf.BlockHeight) {

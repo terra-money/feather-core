@@ -147,12 +147,12 @@ import (
 	alliancekeeper "github.com/terra-money/alliance/x/alliance/keeper"
 	alliancetypes "github.com/terra-money/alliance/x/alliance/types"
 
-	featherconnect "github.com/terra-money/feather-core/app/feather_connect"
-	featherconnectkeeper "github.com/terra-money/feather-core/app/feather_connect/keeper"
-	featherconnecttypes "github.com/terra-money/feather-core/app/feather_connect/types"
 	"github.com/terra-money/feather-core/app/openapiconsole"
 	appparams "github.com/terra-money/feather-core/app/params"
 	"github.com/terra-money/feather-core/docs"
+	featherconnect "github.com/terra-money/feather-core/x/feather-connect"
+	featherconnectkeeper "github.com/terra-money/feather-core/x/feather-connect/keeper"
+	featherconnecttypes "github.com/terra-money/feather-core/x/feather-connect/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
@@ -819,7 +819,7 @@ func New(
 		app.TransferKeeper,
 		app.AllianceKeeper,
 	)
-	modules = append(modules, featherconnect.NewAppModule(app.FeatherConnectKeeper))
+	modules = append(modules, featherconnect.NewAppModule(cdc, app.FeatherConnectKeeper))
 	/****  Module Options ****/
 
 	// NOTE: Any module instantiated in the module manager that is later modified

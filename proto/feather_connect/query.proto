@@ -1,0 +1,19 @@
+syntax = "proto3";
+package feather_connect;
+
+import "alliance/params.proto";
+import "alliance/alliance.proto";
+
+option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";
+
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/terra/feather/connect/params";
+  }
+}
+
+message QueryParamsRequest { }
+
+message QueryParamsResponse {
+  Params params = 1 [(gogoproto.nullable) = false];
+}
