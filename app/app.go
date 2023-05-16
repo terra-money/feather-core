@@ -815,6 +815,7 @@ func New(
 	// 2. 'ibc transfer'
 	// 3. 'alliance'
 	app.FeatherConnectKeeper = featherconnectkeeper.NewKeeper(
+		app.ParamsKeeper.Subspace(featherconnecttypes.ModuleName),
 		*app.IBCKeeper,
 		app.TransferKeeper,
 		app.AllianceKeeper,

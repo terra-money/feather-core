@@ -11,30 +11,22 @@ import (
 )
 
 var (
-	BlockHeight = []byte("blockHeight")
-	BaseDenom   = []byte("baseDenom")
-	Alliance    = []byte("alliance")
+	HaltIfNoChannel    = []byte("haltIfNoChannel")
+	BaseDenom          = []byte("baseDenom")
+	BaseChainId        = []byte("baseChainId")
+	AllianceBondHeight = []byte("allianceBondHeight")
+	Alliance           = []byte("alliance")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
-		paramtypes.NewParamSetPair(BlockHeight, &p.BlockHeight, validateBlockHeight),
 		paramtypes.NewParamSetPair(BaseDenom, &p.BaseDenom, validateBaseDenom),
+		paramtypes.NewParamSetPair(BaseChainId, &p.BaseChainId, validateBaseChainId),
+		paramtypes.NewParamSetPair(AllianceBondHeight, &p.AllianceBondHeight, validateAllianceBondHeight),
 		paramtypes.NewParamSetPair(Alliance, &p.Alliance, validateAlliance),
 	}
-}
-
-func validateBlockHeight(i interface{}) error {
-	blockHeight, ok := i.(int64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-	if blockHeight < 0 {
-		return fmt.Errorf("blockHeight must be positive: %d", blockHeight)
-	}
-	return nil
 }
 
 func validateBaseDenom(i interface{}) error {
@@ -50,6 +42,26 @@ func validateBaseDenom(i interface{}) error {
 	return nil
 }
 
+func validateBaseChainId(i interface{}) error {
+	_, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+func validateAllianceBondHeight(i interface{}) error {
+	AllianceBondHeight, ok := i.(int64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if AllianceBondHeight < 0 {
+		return fmt.Errorf("AllianceBondHeight must be positive: %d", AllianceBondHeight)
+	}
+	return nil
+}
+
 func validateAlliance(i interface{}) error {
 	_, ok := i.(alliancetypes.MsgCreateAllianceProposal)
 	if !ok {
@@ -61,8 +73,10 @@ func validateAlliance(i interface{}) error {
 // NewParams creates a new Params instance
 func NewParams() Params {
 	return Params{
-		BlockHeight: 1000,
-		BaseDenom:   "uluna",
+		HaltIfNoChannel:    true,
+		BaseDenom:          "uluna",
+		BaseChainId:        "phoenix-1",
+		AllianceBondHeight: 1000,
 		Alliance: alliancetypes.MsgCreateAllianceProposal{
 			Title:                "Alliance with Terra",
 			Description:          "Asset uluna creates an alliance with the chain to increase the economical security of the chain.",

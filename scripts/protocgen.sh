@@ -7,11 +7,10 @@ protoc_install_proto_gen_doc() {
   (go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest 2> /dev/null)
 }
 
-
 echo "Generating gogo proto code"
 cd proto
 
-proto_dirs=$(find ./alliance ./feather_connect -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
+proto_dirs=$(find ./feather_connect -path -prune -o -name '*.proto' -print0 | xargs -0 -n1 dirname | sort | uniq)
 for dir in $proto_dirs; do
   for file in $(find "${dir}" -maxdepth 1 -name '*.proto'); do
     if grep "option go_package" $file &> /dev/null ; then

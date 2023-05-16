@@ -9,45 +9,45 @@ import (
 
 // ValidateGenesis
 func ValidateGenesis(data *types.GenesisState) error {
-	if data.Params.BlockHeight < 1 {
-		panic(fmt.Errorf("blockHeight cannot be less than 1 on genesis state"))
+	if data.Params.AllianceBondHeight < 1 {
+		panic(fmt.Errorf("AllianceBondHeight cannot be less than 1 on genesis state"))
 	}
 
 	if err := sdk.ValidateDenom(data.Params.BaseDenom); err != nil {
 		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
 	}
 
-	params := data.Params.Alliance
+	alliance := data.Params.Alliance
 
-	if len(params.Title) == 0 {
+	if len(alliance.Title) == 0 {
 		panic(fmt.Errorf("title is empty on genesis state"))
 	}
 
-	if len(params.Description) == 0 {
+	if len(alliance.Description) == 0 {
 		panic(fmt.Errorf("description is empty on genesis state"))
 	}
 
-	if err := sdk.ValidateDenom(params.Denom); err != nil {
+	if err := sdk.ValidateDenom(alliance.Denom); err != nil {
 		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
 	}
 
-	if params.RewardWeight.IsNil() || params.RewardWeight.IsNegative() {
+	if alliance.RewardWeight.IsNil() || alliance.RewardWeight.IsNegative() {
 		panic(fmt.Errorf("rewardWeight cannot be negative nor nil on genesis state"))
 	}
 
-	if params.TakeRate.IsNil() || params.TakeRate.IsNegative() {
+	if alliance.TakeRate.IsNil() || alliance.TakeRate.IsNegative() {
 		panic(fmt.Errorf("takeRate cannot be negative nor nil on genesis state"))
 	}
 
-	if params.RewardChangeRate.IsNil() || params.RewardChangeRate.IsNegative() {
+	if alliance.RewardChangeRate.IsNil() || alliance.RewardChangeRate.IsNegative() {
 		panic(fmt.Errorf("rewardChangeRate cannot be negative nor nil on genesis state"))
 	}
 
-	if params.RewardChangeInterval < 0 {
+	if alliance.RewardChangeInterval < 0 {
 		panic(fmt.Errorf("rewardChangeInterval cannot be negative nor nil on genesis state"))
 	}
 
-	if params.RewardWeightRange.Min.IsNegative() || params.RewardWeightRange.Max.IsNegative() {
+	if alliance.RewardWeightRange.Min.IsNegative() || alliance.RewardWeightRange.Max.IsNegative() {
 		panic(fmt.Errorf("rewardWeightRange Min or Max cannot be negative on genesis state"))
 	}
 

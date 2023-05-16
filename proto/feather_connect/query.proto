@@ -3,7 +3,6 @@ package feather_connect;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
-import "alliance/alliance.proto";
 import "feather_connect/params.proto";
 
 option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";

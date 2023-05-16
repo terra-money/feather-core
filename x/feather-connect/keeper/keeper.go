@@ -15,11 +15,13 @@ type Keeper struct {
 }
 
 func NewKeeper(
+	paramSpace paramtypes.Subspace,
 	ibcKeeper ibckeeper.Keeper,
 	ibcTransferKeeper ibctransferkeeper.Keeper,
 	allianceKeeper alliancekeeper.Keeper,
 ) Keeper {
 	return Keeper{
+		paramSpace:        paramSpace,
 		IbcKeeper:         ibcKeeper,
 		IbcTransferKeeper: ibcTransferKeeper,
 		AllianceKeeper:    allianceKeeper,
