@@ -2,6 +2,7 @@ package feather_connect
 
 import (
 	"encoding/json"
+	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -29,13 +30,24 @@ func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the ibc-transfer module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {}
-
-func (AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
-}
+func (AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {}
 
 func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {}
+
+func (a AppModuleBasic) DefaultGenesis(jsonCodec codec.JSONCodec) json.RawMessage {
+	return jsonCodec.MustMarshalJSON(DefaultGenesisState())
+}
+
+func (a AppModuleBasic) ValidateGenesis(jsonCodec codec.JSONCodec, _ client.TxEncodingConfig, message json.RawMessage) error {
+	var genesis types.GenesisState
+	if err := jsonCodec.UnmarshalJSON(message, &genesis); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
+	return ValidateGenesis(&genesis)
+}
+
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the ibc-transfer module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {}
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (a AppModule) RegisterServices(cfg module.Configurator) {
@@ -45,7 +57,6 @@ func (a AppModule) RegisterServices(cfg module.Configurator) {
 // AppModule represents the AppModule for this module
 type AppModule struct {
 	AppModuleBasic
-	cdc    codec.Codec
 	keeper keeper.Keeper
 }
 
@@ -55,15 +66,15 @@ func NewAppModule(cdc codec.Codec, k keeper.Keeper) AppModule {
 	}
 }
 
-func (a AppModule) InitGenesis(ctx sdk.Context, jsonCodec codec.JSONCodec, message json.RawMessage) []abci.ValidatorUpdate {
+func (a AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
 	var genesis types.GenesisState
-	jsonCodec.MustUnmarshalJSON(message, &genesis)
-	return a.keeper.InitGenesis(ctx, &genesis)
+	cdc.MustUnmarshalJSON(gs, &genesis)
+	return a.keeper.InitGenesis(ctx, genesis)
 }
 
-func (a AppModule) ExportGenesis(ctx sdk.Context, _ codec.JSONCodec) json.RawMessage {
+func (a AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	genesis := a.keeper.ExportGenesis(ctx)
-	return a.cdc.MustMarshalJSON(genesis)
+	return cdc.MustMarshalJSON(genesis)
 }
 
 func (am AppModule) EndBlock(ctx sdk.Context, req abci.RequestEndBlock) []abci.ValidatorUpdate {

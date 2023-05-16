@@ -11,22 +11,31 @@ import (
 )
 
 var (
-	HaltIfNoChannel    = []byte("haltIfNoChannel")
-	BaseDenom          = []byte("baseDenom")
-	BaseChainId        = []byte("baseChainId")
-	AllianceBondHeight = []byte("allianceBondHeight")
-	Alliance           = []byte("alliance")
+	HaltIfNoChannel    = []byte("HaltIfNoChannel")
+	BaseDenom          = []byte("BaseDenom")
+	BaseChainId        = []byte("BaseChainId")
+	AllianceBondHeight = []byte("AllianceBondHeight")
+	Alliance           = []byte("Alliance")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
 
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(HaltIfNoChannel, &p.HaltIfNoChannel, validateHaltIfNoChannel),
 		paramtypes.NewParamSetPair(BaseDenom, &p.BaseDenom, validateBaseDenom),
 		paramtypes.NewParamSetPair(BaseChainId, &p.BaseChainId, validateBaseChainId),
 		paramtypes.NewParamSetPair(AllianceBondHeight, &p.AllianceBondHeight, validateAllianceBondHeight),
 		paramtypes.NewParamSetPair(Alliance, &p.Alliance, validateAlliance),
 	}
+}
+
+func validateHaltIfNoChannel(i interface{}) error {
+	_, ok := i.(bool)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	return nil
 }
 
 func validateBaseDenom(i interface{}) error {

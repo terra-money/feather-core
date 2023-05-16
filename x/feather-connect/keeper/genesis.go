@@ -6,7 +6,7 @@ import (
 	"github.com/terra-money/feather-core/x/feather-connect/types"
 )
 
-func (k Keeper) InitGenesis(ctx sdk.Context, g *types.GenesisState) []abci.ValidatorUpdate {
+func (k Keeper) InitGenesis(ctx sdk.Context, g types.GenesisState) []abci.ValidatorUpdate {
 	k.SetParams(ctx, g.Params)
 	return []abci.ValidatorUpdate{}
 }

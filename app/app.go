@@ -224,6 +224,7 @@ var (
 		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		alliance.AppModuleBasic{},
+		featherconnect.AppModuleBasic{},
 	)
 )
 
@@ -814,6 +815,8 @@ func New(
 	// 1. 'ibc'
 	// 2. 'ibc transfer'
 	// 3. 'alliance'
+	app.keys[featherconnecttypes.StoreKey] = storetypes.NewKVStoreKey(featherconnecttypes.StoreKey)
+	app.MountStores(app.keys[featherconnecttypes.StoreKey])
 	app.FeatherConnectKeeper = featherconnectkeeper.NewKeeper(
 		app.ParamsKeeper.Subspace(featherconnecttypes.ModuleName),
 		*app.IBCKeeper,
