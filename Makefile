@@ -10,6 +10,7 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 JQ := $(shell which jq)
+HTTPS_GIT := https://github.com/terra-money/feather-core.git
 
 export GO111MODULE = on
 
@@ -268,16 +269,15 @@ lint: format-tools
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*_test.go" | xargs gofumpt -d -s
 
 format: format-tools
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gofumpt -w -s
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs goimports -w -local github.com/CosmWasm/wasmd
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofumpt -w 
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs misspell -w
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs goimports -w -local github.com/CosmWasm/wasmd
 
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
-protoImageName=ghcr.io/cosmos/proto-builder
-protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder
 
 proto-all: proto-format proto-lint proto-gen format
 
@@ -287,21 +287,17 @@ proto-gen:
 
 proto-format:
 	@echo "Formatting Protobuf files"
-	$(DOCKER) run --rm -v $(CURDIR):/workspace \
-	--workdir /workspace $(PROTO_FORMATTER_IMAGE) \
-	find ./ -name *.proto -exec clang-format -i {} \;
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
 
 proto-swagger-gen:
 	@echo "Generating Protobuf Swagger"
 	sh ./scripts/protoc-swagger-gen.sh
 
 proto-lint:
+	@echo "Lint Protobuf files"
 	@$(protoImage) buf lint --error-format=json
 
 proto-check-breaking:
+	@echo "Check Protobuf breaking changes"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
-.PHONY: all install install-debug \
-	go-mod-cache draw-deps clean build format \
-	test test-all test-build test-cover test-unit test-race \
-	test-sim-import-export \

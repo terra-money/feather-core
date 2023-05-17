@@ -26,6 +26,7 @@ func (k QueryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 		Params: params,
 	}, nil
 }
+
 func NewQueryServerImpl(keeper Keeper) types.QueryServer {
 	return &QueryServer{Keeper: keeper}
 }

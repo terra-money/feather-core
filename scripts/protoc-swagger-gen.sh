@@ -48,7 +48,7 @@ for dir in $proto_dirs; do
 done
 
 npm install -g swagger-combine
-npx swagger-combine ./docs/client/config.json -o ./docs/client/swagger-ui/swagger.yaml -f yaml --continueOnConflictingPaths true --includeDefinitions true
+npx swagger-combine ./docs/config.json -o ./docs/static/openapi.yml -f yaml --continueOnConflictingPaths true --includeDefinitions true
 
 # clean swagger files
 rm -rf ./tmp-swagger-gen

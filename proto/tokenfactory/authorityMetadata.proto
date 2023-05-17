@@ -1,10 +1,10 @@
 syntax = "proto3";
-package osmosis.tokenfactory.v1beta1;
+package tokenfactory;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/osmosis-labs/osmosis/v15/x/tokenfactory/types";
+option go_package = "github.com/terra-money/feather-core/x/tokenfactory/types";
 
 // DenomAuthorityMetadata specifies metadata for addresses that have specific
 // capabilities over a token factory denom. Right now there is only one Admin
