@@ -1,6 +1,7 @@
 package feather_connect
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -46,10 +47,10 @@ func (a AppModuleBasic) ValidateGenesis(jsonCodec codec.JSONCodec, _ client.TxEn
 	return ValidateGenesis(&genesis)
 }
 
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the ibc-transfer module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {}
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)) //nolint:errcheck
+}
 
-// RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (a AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServerImpl(a.keeper))
 }

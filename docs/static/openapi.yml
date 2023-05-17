@@ -1809,6 +1809,96 @@ paths:
           type: string
       tags:
         - Query
+  /terra/feather/connect/params:
+    get:
+      operationId: FeatherConnectParams
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              params:
+                type: object
+                properties:
+                  halt_if_no_channel:
+                    type: boolean
+                  base_denom:
+                    type: string
+                  base_chain_id:
+                    type: string
+                  alliance_bond_height:
+                    type: string
+                    format: int64
+                  alliance:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        title: the title of the update proposal
+                      description:
+                        type: string
+                        title: the description of the proposal
+                      denom:
+                        type: string
+                        title: >-
+                          Denom of the asset. It could either be a native token
+                          or an IBC token
+                      reward_weight:
+                        type: string
+                        description: >-
+                          The reward weight specifies the ratio of rewards that
+                          will be given to each alliance asset
+
+                          It does not need to sum to 1. rate = weight /
+                          total_weight
+
+                          Native asset is always assumed to have a weight of 1.
+                      take_rate:
+                        type: string
+                        title: >-
+                          A positive take rate is used for liquid staking
+                          derivatives. It defines an annualized reward rate that
+
+                          will be redirected to the distribution rewards pool
+                      reward_change_rate:
+                        type: string
+                      reward_change_interval:
+                        type: string
+                      reward_weight_range:
+                        description: >-
+                          set a bound of weight range to limit how much reward
+                          weights can scale.
+                        type: object
+                        properties:
+                          min:
+                            type: string
+                          max:
+                            type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type_url:
+                      type: string
+                    value:
+                      type: string
+                      format: byte
+      tags:
+        - Query
   /osmosis/tokenfactory/v1beta1/denoms/{denom}/authority_metadata:
     get:
       summary: |-
@@ -45640,6 +45730,163 @@ definitions:
                   "@type": "type.googleapis.com/google.protobuf.Duration",
                   "value": "1.212s"
                 }
+  alliance.MsgCreateAllianceProposal:
+    type: object
+    properties:
+      title:
+        type: string
+        title: the title of the update proposal
+      description:
+        type: string
+        title: the description of the proposal
+      denom:
+        type: string
+        title: Denom of the asset. It could either be a native token or an IBC token
+      reward_weight:
+        type: string
+        description: >-
+          The reward weight specifies the ratio of rewards that will be given to
+          each alliance asset
+
+          It does not need to sum to 1. rate = weight / total_weight
+
+          Native asset is always assumed to have a weight of 1.
+      take_rate:
+        type: string
+        title: >-
+          A positive take rate is used for liquid staking derivatives. It
+          defines an annualized reward rate that
+
+          will be redirected to the distribution rewards pool
+      reward_change_rate:
+        type: string
+      reward_change_interval:
+        type: string
+      reward_weight_range:
+        description: >-
+          set a bound of weight range to limit how much reward weights can
+          scale.
+        type: object
+        properties:
+          min:
+            type: string
+          max:
+            type: string
+  feather_connect.Params:
+    type: object
+    properties:
+      halt_if_no_channel:
+        type: boolean
+      base_denom:
+        type: string
+      base_chain_id:
+        type: string
+      alliance_bond_height:
+        type: string
+        format: int64
+      alliance:
+        type: object
+        properties:
+          title:
+            type: string
+            title: the title of the update proposal
+          description:
+            type: string
+            title: the description of the proposal
+          denom:
+            type: string
+            title: >-
+              Denom of the asset. It could either be a native token or an IBC
+              token
+          reward_weight:
+            type: string
+            description: >-
+              The reward weight specifies the ratio of rewards that will be
+              given to each alliance asset
+
+              It does not need to sum to 1. rate = weight / total_weight
+
+              Native asset is always assumed to have a weight of 1.
+          take_rate:
+            type: string
+            title: >-
+              A positive take rate is used for liquid staking derivatives. It
+              defines an annualized reward rate that
+
+              will be redirected to the distribution rewards pool
+          reward_change_rate:
+            type: string
+          reward_change_interval:
+            type: string
+          reward_weight_range:
+            description: >-
+              set a bound of weight range to limit how much reward weights can
+              scale.
+            type: object
+            properties:
+              min:
+                type: string
+              max:
+                type: string
+  feather_connect.QueryParamsResponse:
+    type: object
+    properties:
+      params:
+        type: object
+        properties:
+          halt_if_no_channel:
+            type: boolean
+          base_denom:
+            type: string
+          base_chain_id:
+            type: string
+          alliance_bond_height:
+            type: string
+            format: int64
+          alliance:
+            type: object
+            properties:
+              title:
+                type: string
+                title: the title of the update proposal
+              description:
+                type: string
+                title: the description of the proposal
+              denom:
+                type: string
+                title: >-
+                  Denom of the asset. It could either be a native token or an
+                  IBC token
+              reward_weight:
+                type: string
+                description: >-
+                  The reward weight specifies the ratio of rewards that will be
+                  given to each alliance asset
+
+                  It does not need to sum to 1. rate = weight / total_weight
+
+                  Native asset is always assumed to have a weight of 1.
+              take_rate:
+                type: string
+                title: >-
+                  A positive take rate is used for liquid staking derivatives.
+                  It defines an annualized reward rate that
+
+                  will be redirected to the distribution rewards pool
+              reward_change_rate:
+                type: string
+              reward_change_interval:
+                type: string
+              reward_weight_range:
+                description: >-
+                  set a bound of weight range to limit how much reward weights
+                  can scale.
+                type: object
+                properties:
+                  min:
+                    type: string
+                  max:
+                    type: string
   tokenfactory.DenomAuthorityMetadata:
     type: object
     properties:

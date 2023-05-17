@@ -15,6 +15,14 @@
       }
     },
     {
+      "url": "./tmp-swagger-gen/feather_connect/query.swagger.json",
+      "operationIds": {
+        "rename": {
+          "Params": "FeatherConnectParams"
+        }
+      }
+    },
+    {
       "url": "./tmp-swagger-gen/tokenfactory/query.swagger.json",
       "operationIds": {
         "rename": {

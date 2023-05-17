@@ -82,10 +82,10 @@ func validateAlliance(i interface{}) error {
 // NewParams creates a new Params instance
 func NewParams() Params {
 	return Params{
-		HaltIfNoChannel:    true,
+		HaltIfNoChannel:    false,
 		BaseDenom:          "uluna",
 		BaseChainId:        "phoenix-1",
-		AllianceBondHeight: 1000,
+		AllianceBondHeight: 10,
 		Alliance: alliancetypes.MsgCreateAllianceProposal{
 			Title:                "Alliance with Terra",
 			Description:          "Asset uluna creates an alliance with the chain to increase the economical security of the chain.",

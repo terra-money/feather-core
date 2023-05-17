@@ -6,10 +6,6 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	io "io"
-	math "math"
-	math_bits "math/bits"
-
 	types "github.com/cosmos/cosmos-sdk/types"
 	types1 "github.com/cosmos/cosmos-sdk/x/bank/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
@@ -18,14 +14,15 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	io "io"
+	math "math"
+	math_bits "math/bits"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ = proto.Marshal
-	_ = fmt.Errorf
-	_ = math.Inf
-)
+var _ = proto.Marshal
+var _ = fmt.Errorf
+var _ = math.Inf
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -54,11 +51,9 @@ func (*MsgCreateDenom) ProtoMessage()    {}
 func (*MsgCreateDenom) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{0}
 }
-
 func (m *MsgCreateDenom) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgCreateDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCreateDenom.Marshal(b, m, deterministic)
@@ -71,15 +66,12 @@ func (m *MsgCreateDenom) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-
 func (m *MsgCreateDenom) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCreateDenom.Merge(m, src)
 }
-
 func (m *MsgCreateDenom) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgCreateDenom) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCreateDenom.DiscardUnknown(m)
 }
@@ -112,11 +104,9 @@ func (*MsgCreateDenomResponse) ProtoMessage()    {}
 func (*MsgCreateDenomResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{1}
 }
-
 func (m *MsgCreateDenomResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgCreateDenomResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgCreateDenomResponse.Marshal(b, m, deterministic)
@@ -129,15 +119,12 @@ func (m *MsgCreateDenomResponse) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-
 func (m *MsgCreateDenomResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgCreateDenomResponse.Merge(m, src)
 }
-
 func (m *MsgCreateDenomResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgCreateDenomResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgCreateDenomResponse.DiscardUnknown(m)
 }
@@ -164,11 +151,9 @@ func (*MsgMint) ProtoMessage()    {}
 func (*MsgMint) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{2}
 }
-
 func (m *MsgMint) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgMint) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgMint.Marshal(b, m, deterministic)
@@ -181,15 +166,12 @@ func (m *MsgMint) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *MsgMint) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgMint.Merge(m, src)
 }
-
 func (m *MsgMint) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgMint) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgMint.DiscardUnknown(m)
 }
@@ -210,7 +192,8 @@ func (m *MsgMint) GetAmount() types.Coin {
 	return types.Coin{}
 }
 
-type MsgMintResponse struct{}
+type MsgMintResponse struct {
+}
 
 func (m *MsgMintResponse) Reset()         { *m = MsgMintResponse{} }
 func (m *MsgMintResponse) String() string { return proto.CompactTextString(m) }
@@ -218,11 +201,9 @@ func (*MsgMintResponse) ProtoMessage()    {}
 func (*MsgMintResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{3}
 }
-
 func (m *MsgMintResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgMintResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgMintResponse.Marshal(b, m, deterministic)
@@ -235,15 +216,12 @@ func (m *MsgMintResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-
 func (m *MsgMintResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgMintResponse.Merge(m, src)
 }
-
 func (m *MsgMintResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgMintResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgMintResponse.DiscardUnknown(m)
 }
@@ -263,11 +241,9 @@ func (*MsgBurn) ProtoMessage()    {}
 func (*MsgBurn) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{4}
 }
-
 func (m *MsgBurn) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgBurn) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgBurn.Marshal(b, m, deterministic)
@@ -280,15 +256,12 @@ func (m *MsgBurn) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-
 func (m *MsgBurn) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgBurn.Merge(m, src)
 }
-
 func (m *MsgBurn) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgBurn) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgBurn.DiscardUnknown(m)
 }
@@ -309,7 +282,8 @@ func (m *MsgBurn) GetAmount() types.Coin {
 	return types.Coin{}
 }
 
-type MsgBurnResponse struct{}
+type MsgBurnResponse struct {
+}
 
 func (m *MsgBurnResponse) Reset()         { *m = MsgBurnResponse{} }
 func (m *MsgBurnResponse) String() string { return proto.CompactTextString(m) }
@@ -317,11 +291,9 @@ func (*MsgBurnResponse) ProtoMessage()    {}
 func (*MsgBurnResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{5}
 }
-
 func (m *MsgBurnResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgBurnResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgBurnResponse.Marshal(b, m, deterministic)
@@ -334,15 +306,12 @@ func (m *MsgBurnResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-
 func (m *MsgBurnResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgBurnResponse.Merge(m, src)
 }
-
 func (m *MsgBurnResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgBurnResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgBurnResponse.DiscardUnknown(m)
 }
@@ -363,11 +332,9 @@ func (*MsgChangeAdmin) ProtoMessage()    {}
 func (*MsgChangeAdmin) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{6}
 }
-
 func (m *MsgChangeAdmin) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgChangeAdmin) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgChangeAdmin.Marshal(b, m, deterministic)
@@ -380,15 +347,12 @@ func (m *MsgChangeAdmin) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-
 func (m *MsgChangeAdmin) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgChangeAdmin.Merge(m, src)
 }
-
 func (m *MsgChangeAdmin) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgChangeAdmin) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgChangeAdmin.DiscardUnknown(m)
 }
@@ -418,7 +382,8 @@ func (m *MsgChangeAdmin) GetNewAdmin() string {
 
 // MsgChangeAdminResponse defines the response structure for an executed
 // MsgChangeAdmin message.
-type MsgChangeAdminResponse struct{}
+type MsgChangeAdminResponse struct {
+}
 
 func (m *MsgChangeAdminResponse) Reset()         { *m = MsgChangeAdminResponse{} }
 func (m *MsgChangeAdminResponse) String() string { return proto.CompactTextString(m) }
@@ -426,11 +391,9 @@ func (*MsgChangeAdminResponse) ProtoMessage()    {}
 func (*MsgChangeAdminResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{7}
 }
-
 func (m *MsgChangeAdminResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgChangeAdminResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgChangeAdminResponse.Marshal(b, m, deterministic)
@@ -443,15 +406,12 @@ func (m *MsgChangeAdminResponse) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-
 func (m *MsgChangeAdminResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgChangeAdminResponse.Merge(m, src)
 }
-
 func (m *MsgChangeAdminResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgChangeAdminResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgChangeAdminResponse.DiscardUnknown(m)
 }
@@ -471,11 +431,9 @@ func (*MsgSetDenomMetadata) ProtoMessage()    {}
 func (*MsgSetDenomMetadata) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{8}
 }
-
 func (m *MsgSetDenomMetadata) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgSetDenomMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgSetDenomMetadata.Marshal(b, m, deterministic)
@@ -488,15 +446,12 @@ func (m *MsgSetDenomMetadata) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-
 func (m *MsgSetDenomMetadata) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgSetDenomMetadata.Merge(m, src)
 }
-
 func (m *MsgSetDenomMetadata) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgSetDenomMetadata) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgSetDenomMetadata.DiscardUnknown(m)
 }
@@ -519,7 +474,8 @@ func (m *MsgSetDenomMetadata) GetMetadata() types1.Metadata {
 
 // MsgSetDenomMetadataResponse defines the response structure for an executed
 // MsgSetDenomMetadata message.
-type MsgSetDenomMetadataResponse struct{}
+type MsgSetDenomMetadataResponse struct {
+}
 
 func (m *MsgSetDenomMetadataResponse) Reset()         { *m = MsgSetDenomMetadataResponse{} }
 func (m *MsgSetDenomMetadataResponse) String() string { return proto.CompactTextString(m) }
@@ -527,11 +483,9 @@ func (*MsgSetDenomMetadataResponse) ProtoMessage()    {}
 func (*MsgSetDenomMetadataResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_51ab120c97d57038, []int{9}
 }
-
 func (m *MsgSetDenomMetadataResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-
 func (m *MsgSetDenomMetadataResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
 		return xxx_messageInfo_MsgSetDenomMetadataResponse.Marshal(b, m, deterministic)
@@ -544,15 +498,12 @@ func (m *MsgSetDenomMetadataResponse) XXX_Marshal(b []byte, deterministic bool) 
 		return b[:n], nil
 	}
 }
-
 func (m *MsgSetDenomMetadataResponse) XXX_Merge(src proto.Message) {
 	xxx_messageInfo_MsgSetDenomMetadataResponse.Merge(m, src)
 }
-
 func (m *MsgSetDenomMetadataResponse) XXX_Size() int {
 	return m.Size()
 }
-
 func (m *MsgSetDenomMetadataResponse) XXX_DiscardUnknown() {
 	xxx_messageInfo_MsgSetDenomMetadataResponse.DiscardUnknown(m)
 }
@@ -616,10 +567,8 @@ var fileDescriptor_51ab120c97d57038 = []byte{
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var (
-	_ context.Context
-	_ grpc.ClientConn
-)
+var _ context.Context
+var _ grpc.ClientConn
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -699,24 +648,21 @@ type MsgServer interface {
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
-type UnimplementedMsgServer struct{}
+type UnimplementedMsgServer struct {
+}
 
 func (*UnimplementedMsgServer) CreateDenom(ctx context.Context, req *MsgCreateDenom) (*MsgCreateDenomResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateDenom not implemented")
 }
-
 func (*UnimplementedMsgServer) Mint(ctx context.Context, req *MsgMint) (*MsgMintResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Mint not implemented")
 }
-
 func (*UnimplementedMsgServer) Burn(ctx context.Context, req *MsgBurn) (*MsgBurnResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Burn not implemented")
 }
-
 func (*UnimplementedMsgServer) ChangeAdmin(ctx context.Context, req *MsgChangeAdmin) (*MsgChangeAdminResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAdmin not implemented")
 }
-
 func (*UnimplementedMsgServer) SetDenomMetadata(ctx context.Context, req *MsgSetDenomMetadata) (*MsgSetDenomMetadataResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDenomMetadata not implemented")
 }
@@ -1178,7 +1124,6 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-
 func (m *MsgCreateDenom) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1314,11 +1259,9 @@ func (m *MsgSetDenomMetadataResponse) Size() (n int) {
 func sovTx(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
-
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-
 func (m *MsgCreateDenom) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1433,7 +1376,6 @@ func (m *MsgCreateDenom) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgCreateDenomResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1516,7 +1458,6 @@ func (m *MsgCreateDenomResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgMint) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1632,7 +1573,6 @@ func (m *MsgMint) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgMintResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1683,7 +1623,6 @@ func (m *MsgMintResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgBurn) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1799,7 +1738,6 @@ func (m *MsgBurn) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgBurnResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1850,7 +1788,6 @@ func (m *MsgBurnResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgChangeAdmin) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -1997,7 +1934,6 @@ func (m *MsgChangeAdmin) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgChangeAdminResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2048,7 +1984,6 @@ func (m *MsgChangeAdminResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgSetDenomMetadata) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2164,7 +2099,6 @@ func (m *MsgSetDenomMetadata) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func (m *MsgSetDenomMetadataResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2215,7 +2149,6 @@ func (m *MsgSetDenomMetadataResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-
 func skipTx(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
