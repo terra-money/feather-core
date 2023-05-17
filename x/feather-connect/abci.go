@@ -18,7 +18,7 @@ func EndBlock(ctx sdk.Context, k keeper.Keeper) []abci.ValidatorUpdate {
 		return []abci.ValidatorUpdate{}
 	}
 
-	if ctx.BlockHeight() != int64(params.AllianceBondHeight) {
+	if ctx.BlockHeight() != params.AllianceBondHeight {
 		return []abci.ValidatorUpdate{}
 	}
 

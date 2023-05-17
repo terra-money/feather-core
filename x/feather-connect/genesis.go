@@ -14,7 +14,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	if err := sdk.ValidateDenom(data.Params.BaseDenom); err != nil {
-		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
+		panic(fmt.Errorf("invalid denom '%s' on genesis state: %s", data.Params.BaseDenom, err))
 	}
 
 	alliance := data.Params.Alliance
@@ -25,10 +25,6 @@ func ValidateGenesis(data *types.GenesisState) error {
 
 	if len(alliance.Description) == 0 {
 		panic(fmt.Errorf("description is empty on genesis state"))
-	}
-
-	if err := sdk.ValidateDenom(alliance.Denom); err != nil {
-		panic(fmt.Errorf("invalid denom on genesis state: %s", err))
 	}
 
 	if alliance.RewardWeight.IsNil() || alliance.RewardWeight.IsNegative() {

@@ -38,7 +38,7 @@
 | `halt_if_no_channel` | [bool](#bool) |  |  |
 | `base_denom` | [string](#string) |  |  |
 | `base_chain_id` | [string](#string) |  |  |
-| `alliance_bond_height` | [uint64](#uint64) |  |  |
+| `alliance_bond_height` | [int64](#int64) |  |  |
 | `alliance` | [alliance.MsgCreateAllianceProposal](#alliance.MsgCreateAllianceProposal) |  |  |
 
 
