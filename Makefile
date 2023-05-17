@@ -301,3 +301,7 @@ proto-check-breaking:
 	@echo "Check Protobuf breaking changes"
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
+.PHONY: all install install-debug \
+	go-mod-cache draw-deps clean build format \
+	test test-all test-build test-cover test-unit test-race \
+	test-sim-import-export \
