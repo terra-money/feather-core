@@ -5,7 +5,6 @@ import (
 	"time"
 
 	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	alliancetypes "github.com/terra-money/alliance/x/alliance/types"
 )
@@ -39,15 +38,10 @@ func validateHaltIfNoChannel(i interface{}) error {
 }
 
 func validateBaseDenom(i interface{}) error {
-	denom, ok := i.(string)
+	_, ok := i.(string)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-
-	if err := sdk.ValidateDenom(denom); err != nil {
-		return fmt.Errorf("invalid denom: %s", err)
-	}
-
 	return nil
 }
 

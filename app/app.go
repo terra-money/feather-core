@@ -126,7 +126,7 @@ import (
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-
+	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibchooks "github.com/terra-money/feather-core/x/ibc-hooks"
 	ibchookskeeper "github.com/terra-money/feather-core/x/ibc-hooks/keeper"
 	ibchookstypes "github.com/terra-money/feather-core/x/ibc-hooks/types"
@@ -150,9 +150,9 @@ import (
 	"github.com/terra-money/feather-core/app/openapiconsole"
 	appparams "github.com/terra-money/feather-core/app/params"
 	"github.com/terra-money/feather-core/docs"
-	featherconnect "github.com/terra-money/feather-core/x/feather-connect"
-	featherconnectkeeper "github.com/terra-money/feather-core/x/feather-connect/keeper"
-	featherconnecttypes "github.com/terra-money/feather-core/x/feather-connect/types"
+	feather "github.com/terra-money/feather-core/x/feather"
+	FeatherKeeper "github.com/terra-money/feather-core/x/feather/keeper"
+	feathertypes "github.com/terra-money/feather-core/x/feather/types"
 
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
@@ -224,7 +224,7 @@ var (
 		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
 		alliance.AppModuleBasic{},
-		featherconnect.AppModuleBasic{},
+		feather.AppModuleBasic{},
 	)
 )
 
@@ -279,7 +279,7 @@ type App struct {
 	ConsensusParamsKeeper consensuskeeper.Keeper
 	AllianceKeeper        alliancekeeper.Keeper
 	TokenFactoryKeeper    tokenfactorykeeper.Keeper
-	FeatherConnectKeeper  featherconnectkeeper.Keeper
+	FeatherKeeper         FeatherKeeper.Keeper
 
 	// IBC hooks
 	IBCHooksKeeper   ibchookskeeper.Keeper
@@ -332,6 +332,9 @@ func New(
 	app.SetCommitMultiStoreTracer(traceStore)
 	app.SetVersion(version.Version)
 	app.SetInterfaceRegistry(interfaceRegistry)
+	// Light Client interfaces must be registered because
+	// x/feather/acbi.go uses the interface at line 54
+	ibctm.RegisterInterfaces(interfaceRegistry)
 
 	var modules []module.AppModule = make([]module.AppModule, 0)
 	var simModules []module.AppModuleSimulation = make([]module.AppModuleSimulation, 0)
@@ -811,19 +814,19 @@ func New(
 	modules = append(modules, alliance.NewAppModule(cdc, app.AllianceKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, interfaceRegistry))
 	simModules = append(simModules, alliance.NewAppModule(cdc, app.AllianceKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, interfaceRegistry))
 
-	// 'featherconnectkeeper' module - depends on
+	// 'FeatherKeeper' module - depends on
 	// 1. 'ibc'
 	// 2. 'ibc transfer'
 	// 3. 'alliance'
-	app.keys[featherconnecttypes.StoreKey] = storetypes.NewKVStoreKey(featherconnecttypes.StoreKey)
-	app.MountStores(app.keys[featherconnecttypes.StoreKey])
-	app.FeatherConnectKeeper = featherconnectkeeper.NewKeeper(
-		app.ParamsKeeper.Subspace(featherconnecttypes.ModuleName),
+	app.keys[feathertypes.StoreKey] = storetypes.NewKVStoreKey(feathertypes.StoreKey)
+	app.MountStores(app.keys[feathertypes.StoreKey])
+	app.FeatherKeeper = FeatherKeeper.NewKeeper(
+		app.ParamsKeeper.Subspace(feathertypes.ModuleName),
 		*app.IBCKeeper,
 		app.TransferKeeper,
 		app.AllianceKeeper,
 	)
-	modules = append(modules, featherconnect.NewAppModule(cdc, app.FeatherConnectKeeper))
+	modules = append(modules, feather.NewAppModule(cdc, app.FeatherKeeper))
 	/****  Module Options ****/
 
 	// NOTE: Any module instantiated in the module manager that is later modified
@@ -863,7 +866,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
-		featherconnecttypes.ModuleName,
+		feathertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/beginBlockers
 	)
 
@@ -894,7 +897,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
-		featherconnecttypes.ModuleName,
+		feathertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/endBlockers
 	)
 
@@ -930,7 +933,7 @@ func New(
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
 		alliancetypes.ModuleName,
-		featherconnecttypes.ModuleName,
+		feathertypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 

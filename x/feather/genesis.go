@@ -9,6 +9,11 @@ import (
 
 // ValidateGenesis
 func ValidateGenesis(data *types.GenesisState) error {
+	// If the chain shouldn't halt nothing else needs to be validated.
+	if !data.Params.HaltIfNoChannel {
+		return nil
+	}
+
 	if data.Params.AllianceBondHeight < 1 {
 		panic(fmt.Errorf("AllianceBondHeight cannot be less than 1 on genesis state"))
 	}

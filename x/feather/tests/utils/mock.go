@@ -15,8 +15,10 @@ import (
 	"github.com/terra-money/feather-core/x/feather/types"
 )
 
+const IBC_DENOM = "ibc/4627AD2524E3E0523047E35BB76CC90E37D9D57ACF14F0FCBCEB2480705F3CB8"
+
 var (
-	MockedParams = types.GenesisState{
+	MockedGenesis = types.GenesisState{
 		Params: types.Params{
 			HaltIfNoChannel:    true,
 			BaseDenom:          "uluna",
