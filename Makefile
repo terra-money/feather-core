@@ -256,19 +256,27 @@ test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
 
-init-test-framework: clean-test-data install
+integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
 	./scripts/tests/start.sh
 	@echo "Create relayer..."
-	./scripts/tests/relayer/interchain-acc-config/rly-init.sh
-
-clean-test-data:
+	./scripts/tests/relayer/rly-init.sh
+	@echo "Transfer coin from chain test-1 to test-2..."
+	./scripts/tests/feather/transfer.sh
+	@echo "Validate the creation of alliance throught feather..."
+	./scripts/tests/feather/validate-alliance.sh
 	@echo "Killing feather-cored and removing previous data"
 	-@rm -rf ./.test-data
 	-@killall feather-cored 2>/dev/null
 	-@killall rly 2>/dev/null
 
-.PHONY: init-test-framework clean-test-data
+clean-integration-test-data:
+	@echo "Killing feather-cored and removing previous data"
+	-@rm -rf ./.test-data
+	-@killall feather-cored 2>/dev/null
+	-@killall rly 2>/dev/null
+
+.PHONY: integration-test clean-integration-test-data
 
 ###############################################################################
 ###                                Linting                                  ###

@@ -131,7 +131,6 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibchooks "github.com/terra-money/feather-core/x/ibc-hooks"
 	ibchookskeeper "github.com/terra-money/feather-core/x/ibc-hooks/keeper"
 	ibchookstypes "github.com/terra-money/feather-core/x/ibc-hooks/types"
@@ -339,9 +338,6 @@ func New(
 	app.SetCommitMultiStoreTracer(traceStore)
 	app.SetVersion(version.Version)
 	app.SetInterfaceRegistry(interfaceRegistry)
-	// Light Client interfaces must be registered because
-	// x/feather/acbi.go uses the interface at line 54
-	ibctm.RegisterInterfaces(interfaceRegistry)
 
 	var modules []module.AppModule = make([]module.AppModule, 0)
 	var simModules []module.AppModuleSimulation = make([]module.AppModuleSimulation, 0)

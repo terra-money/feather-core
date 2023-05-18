@@ -26,8 +26,8 @@ echo "Initializing $BINARY..."
 $BINARY config init --home $CHAIN_DIR/$RELAYER_DIR
 
 echo "Adding configurations for both chains..."
-$BINARY chains add-dir ./scripts/tests/relayer/interchain-acc-config/chains --home $CHAIN_DIR/$RELAYER_DIR
-$BINARY paths add $CHAINID_1 $CHAINID_2 test1-test2 --file ./scripts/tests/relayer/interchain-acc-config/paths/test1-test2.json --home $CHAIN_DIR/$RELAYER_DIR
+$BINARY chains add-dir ./scripts/tests/relayer/chains --home $CHAIN_DIR/$RELAYER_DIR
+$BINARY paths add $CHAINID_1 $CHAINID_2 test1-test2 --file ./scripts/tests/relayer/paths/test1-test2.json --home $CHAIN_DIR/$RELAYER_DIR
 
 echo "Restoring accounts..."
 $BINARY keys restore $CHAINID_1 testkey "$MNEMONIC_1" --home $CHAIN_DIR/$RELAYER_DIR
@@ -44,7 +44,7 @@ echo "Starting to listen relayer..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
     screen -L -dmS node1 $BINARY start test1-test2 -p events -b 100 --home $CHAIN_DIR/$RELAYER_DIR
 else
-    screen -L -Logfile $CHAIN_HOME/$RELAYER_DIR/log-screen.log -dmS node1 $BINARY start test1-test2 -p events -b 100 --home $CHAIN_DIR/$RELAYER_DIR
+    screen -L -Logfile $CHAIN_DIR/$RELAYER_DIR/log-screen.log -dmS node1 $BINARY start test1-test2 -p events -b 100 --home $CHAIN_DIR/$RELAYER_DIR
 fi
 
 echo ""
