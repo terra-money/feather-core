@@ -5,7 +5,7 @@ import (
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	alliancekeeper "github.com/terra-money/alliance/x/alliance/keeper"
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/types"
 )
 
 type Keeper struct {

@@ -4,30 +4,30 @@
 
 ## Table of Contents
 
-- [feather_connect/params.proto](#feather_connect/params.proto)
-    - [Params](#feather_connect.Params)
+- [feather/params.proto](#feather/params.proto)
+    - [Params](#feather.Params)
   
-- [feather_connect/genesis.proto](#feather_connect/genesis.proto)
-    - [GenesisState](#feather_connect.GenesisState)
+- [feather/genesis.proto](#feather/genesis.proto)
+    - [GenesisState](#feather.GenesisState)
   
-- [feather_connect/query.proto](#feather_connect/query.proto)
-    - [QueryParamsRequest](#feather_connect.QueryParamsRequest)
-    - [QueryParamsResponse](#feather_connect.QueryParamsResponse)
+- [feather/query.proto](#feather/query.proto)
+    - [QueryParamsRequest](#feather.QueryParamsRequest)
+    - [QueryParamsResponse](#feather.QueryParamsResponse)
   
-    - [Query](#feather_connect.Query)
+    - [Query](#feather.Query)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="feather_connect/params.proto"></a>
+<a name="feather/params.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## feather_connect/params.proto
+## feather/params.proto
 
 
 
-<a name="feather_connect.Params"></a>
+<a name="feather.Params"></a>
 
 ### Params
 
@@ -55,14 +55,14 @@
 
 
 
-<a name="feather_connect/genesis.proto"></a>
+<a name="feather/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## feather_connect/genesis.proto
+## feather/genesis.proto
 
 
 
-<a name="feather_connect.GenesisState"></a>
+<a name="feather.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the module's genesis state.
@@ -70,7 +70,7 @@ GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#feather_connect.Params) |  |  |
+| `params` | [Params](#feather.Params) |  |  |
 
 
 
@@ -86,14 +86,14 @@ GenesisState defines the module's genesis state.
 
 
 
-<a name="feather_connect/query.proto"></a>
+<a name="feather/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## feather_connect/query.proto
+## feather/query.proto
 
 
 
-<a name="feather_connect.QueryParamsRequest"></a>
+<a name="feather.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 
@@ -103,7 +103,7 @@ GenesisState defines the module's genesis state.
 
 
 
-<a name="feather_connect.QueryParamsResponse"></a>
+<a name="feather.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 
@@ -111,7 +111,7 @@ GenesisState defines the module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#feather_connect.Params) |  |  |
+| `params` | [Params](#feather.Params) |  |  |
 
 
 
@@ -124,14 +124,14 @@ GenesisState defines the module's genesis state.
  <!-- end HasExtensions -->
 
 
-<a name="feather_connect.Query"></a>
+<a name="feather.Query"></a>
 
 ### Query
 
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `Params` | [QueryParamsRequest](#feather_connect.QueryParamsRequest) | [QueryParamsResponse](#feather_connect.QueryParamsResponse) |  | GET|/terra/feather/connect/params|
+| `Params` | [QueryParamsRequest](#feather.QueryParamsRequest) | [QueryParamsResponse](#feather.QueryParamsResponse) |  | GET|/terra/feather/params|
 
  <!-- end services -->
 

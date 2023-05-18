@@ -6,12 +6,13 @@ import (
 	sdkmath "cosmossdk.io/math"
 	trasnfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
 	ibcchanneltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	alliancetypes "github.com/terra-money/alliance/x/alliance/types"
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/types"
 )
 
 var (
@@ -41,6 +42,9 @@ var (
 		ConnectionHops: []string{
 			"connection-0",
 		},
+	}
+	MockedConnection = connectiontypes.ConnectionEnd{
+		ClientId: "transfer",
 	}
 
 	MockedDenomTrace = trasnfertypes.DenomTrace{

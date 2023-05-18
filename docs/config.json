@@ -15,10 +15,10 @@
       }
     },
     {
-      "url": "./tmp-swagger-gen/feather_connect/query.swagger.json",
+      "url": "./tmp-swagger-gen/feather/query.swagger.json",
       "operationIds": {
         "rename": {
-          "Params": "FeatherConnectParams"
+          "Params": "featherParams"
         }
       }
     },

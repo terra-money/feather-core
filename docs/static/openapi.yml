@@ -1809,9 +1809,9 @@ paths:
           type: string
       tags:
         - Query
-  /terra/feather/connect/params:
+  /terra/feather/params:
     get:
-      operationId: FeatherConnectParams
+      operationId: featherParams
       responses:
         '200':
           description: A successful response.
@@ -45772,7 +45772,7 @@ definitions:
             type: string
           max:
             type: string
-  feather_connect.Params:
+  feather.Params:
     type: object
     properties:
       halt_if_no_channel:
@@ -45828,7 +45828,7 @@ definitions:
                 type: string
               max:
                 type: string
-  feather_connect.QueryParamsResponse:
+  feather.QueryParamsResponse:
     type: object
     properties:
       params:

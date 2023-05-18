@@ -1,4 +1,4 @@
-package feather_connect
+package feather
 
 import (
 	"context"
@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
-	"github.com/terra-money/feather-core/x/feather-connect/keeper"
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/keeper"
+	"github.com/terra-money/feather-core/x/feather/types"
 )
 
 type AppModuleBasic struct{}

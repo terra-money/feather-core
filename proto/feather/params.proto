@@ -1,10 +1,10 @@
 syntax = "proto3";
-package feather_connect;
+package feather;
 
 import "alliance/gov.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";
+option go_package = "github.com/terra-money/feather-core/x/feather/types";
 
 message Params {
   bool halt_if_no_channel = 1;

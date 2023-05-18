@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

@@ -3,7 +3,7 @@ package keeper
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/types"
 )
 
 func (k Keeper) InitGenesis(ctx sdk.Context, g types.GenesisState) []abci.ValidatorUpdate {

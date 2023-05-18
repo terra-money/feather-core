@@ -1,15 +1,15 @@
 syntax = "proto3";
-package feather_connect;
+package feather;
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
-import "feather_connect/params.proto";
+import "feather/params.proto";
 
-option go_package = "github.com/terra-money/feather-core/x/feather-connect/types";
+option go_package = "github.com/terra-money/feather-core/x/feather/types";
 
 service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/terra/feather/connect/params";
+    option (google.api.http).get = "/terra/feather/params";
   }
 }
 

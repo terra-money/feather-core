@@ -1,10 +1,10 @@
-package feather_connect
+package feather
 
 import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/terra-money/feather-core/x/feather-connect/types"
+	"github.com/terra-money/feather-core/x/feather/types"
 )
 
 // ValidateGenesis

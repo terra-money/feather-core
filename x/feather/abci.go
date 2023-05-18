@@ -1,4 +1,4 @@
-package feather_connect
+package feather
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	"github.com/terra-money/feather-core/x/feather-connect/keeper"
+	"github.com/terra-money/feather-core/x/feather/keeper"
 )
 
 // Each end block, check if the current block height is the same as the alliance bond height.
