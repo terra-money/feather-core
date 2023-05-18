@@ -115,15 +115,20 @@ import (
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
+	icahost "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host"
 	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
 	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
 	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibcfee "github.com/cosmos/ibc-go/v7/modules/apps/29-fee"
+	ibcfeekeeper "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/keeper"
+	ibcfeetypes "github.com/cosmos/ibc-go/v7/modules/apps/29-fee/types"
 	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
 	ibctransferkeeper "github.com/cosmos/ibc-go/v7/modules/apps/transfer/keeper"
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibc "github.com/cosmos/ibc-go/v7/modules/core"
 	ibcclient "github.com/cosmos/ibc-go/v7/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
+	ibcporttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
@@ -220,6 +225,7 @@ var (
 		ibc.AppModuleBasic{},
 		ibctransfer.AppModuleBasic{},
 		ica.AppModuleBasic{},
+		ibcfee.AppModuleBasic{},
 		ibchooks.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
@@ -277,6 +283,7 @@ type App struct {
 	GroupKeeper           groupkeeper.Keeper
 	WasmKeeper            wasm.Keeper
 	ConsensusParamsKeeper consensuskeeper.Keeper
+	IBCFeeKeeper          ibcfeekeeper.Keeper
 	AllianceKeeper        alliancekeeper.Keeper
 	TokenFactoryKeeper    tokenfactorykeeper.Keeper
 	FeatherKeeper         FeatherKeeper.Keeper
@@ -657,10 +664,42 @@ func New(
 		app.UpgradeKeeper,
 		app.CapabilityKeeper.ScopeToModule(ibcexported.ModuleName),
 	)
-	// app.IBCKeeper.SetRouter(ibcporttypes.NewRouter())
 	govLegacyRouter.AddRoute(ibcexported.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 	modules = append(modules, ibc.NewAppModule(app.IBCKeeper))
 	simModules = append(simModules, ibc.NewAppModule(app.IBCKeeper))
+
+	// 'ibcfeekeeper' module - depends on
+	// 1. 'bank'
+	// 2. 'auth'
+	// 3. 'ibc channel'
+	// 4. 'ibc port'
+	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
+		app.cdc,
+		app.keys[ibcfeetypes.StoreKey],
+		app.IBCKeeper.ChannelKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		app.AuthKeeper,
+		app.BankKeeper,
+	)
+	hooksTransferStack := ibchooks.NewIBCMiddleware(&app.TransferStack, &app.HooksICS4Wrapper)
+	app.keys[ibcporttypes.StoreKey] = storetypes.NewKVStoreKey(ibcporttypes.StoreKey)
+	app.AuthKeeper.GetModulePermissions()[ibctransfertypes.ModuleName] = authtypes.NewPermissionsForAddress(ibcfeetypes.ModuleName, nil)
+	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
+	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, app.IBCFeeKeeper)
+
+	modules = append(modules, ibcfee.NewAppModule(app.IBCFeeKeeper))
+	simModules = append(simModules, ibcfee.NewAppModule(app.IBCFeeKeeper))
+
+	// Create fee enabled wasm ibc Stack
+	var wasmStack ibcporttypes.IBCModule
+	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
+	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
+
+	app.IBCKeeper.SetRouter(ibcporttypes.NewRouter().
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(ibctransfertypes.ModuleName, hooksTransferStack).
+		AddRoute(wasm.ModuleName, wasmStack))
 
 	// 'ibctransfer' module - depends on
 	// 1. 'ibc'
@@ -855,6 +894,7 @@ func New(
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
+		ibcfeetypes.ModuleName,
 		genutiltypes.ModuleName,
 		authz.ModuleName,
 		feegrant.ModuleName,
@@ -893,6 +933,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		nft.ModuleName,
+		ibcfeetypes.ModuleName,
 		ibchookstypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,
@@ -929,6 +970,7 @@ func New(
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		nft.ModuleName,
+		ibcfeetypes.ModuleName,
 		ibchookstypes.ModuleName,
 		wasm.ModuleName,
 		tokenfactorytypes.ModuleName,

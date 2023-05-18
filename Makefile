@@ -229,12 +229,12 @@ clean:
 distclean: clean
 	rm -rf vendor/
 
-########################################
-### Testing
-
+###############################################################################
+###                                Testing                                  ###
+###############################################################################
 
 test: test-unit
-test-all: check test-race test-cover
+test-all: test-race test-cover
 
 test-unit:
 	@VERSION=$(VERSION) go test -mod=readonly -tags='ledger test_ledger_mock' ./...
@@ -255,6 +255,20 @@ test-sim-import-export: runsim
 test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
+
+init-test-framework: clean-test-data install
+	@echo "Initializing both blockchains..."
+	./scripts/tests/start.sh
+	@echo "Create relayer..."
+	./scripts/tests/relayer/interchain-acc-config/rly-init.sh
+
+clean-test-data:
+	@echo "Killing feather-cored and removing previous data"
+	-@rm -rf ./.test-data
+	-@killall feather-cored 2>/dev/null
+	-@killall rly 2>/dev/null
+
+.PHONY: init-test-framework clean-test-data
 
 ###############################################################################
 ###                                Linting                                  ###
