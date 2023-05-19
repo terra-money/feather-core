@@ -36,6 +36,7 @@ import (
 	authsim "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 
 	"github.com/cosmos/cosmos-sdk/x/consensus"
 
@@ -228,6 +229,7 @@ var (
 		ibchooks.AppModuleBasic{},
 		tokenfactory.AppModuleBasic{},
 		wasm.AppModuleBasic{},
+		ibctm.AppModuleBasic{},
 		alliance.AppModuleBasic{},
 		feather.AppModuleBasic{},
 	)

@@ -108,6 +108,8 @@ sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-2"/g' $CHAIN_DI
 sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-1"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
+sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
+sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 
 echo "Starting $CHAINID_1 in $CHAIN_DIR..."
 echo "Creating log file at $CHAIN_DIR/$CHAINID_1.log"

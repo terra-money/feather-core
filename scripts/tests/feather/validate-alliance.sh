@@ -31,7 +31,12 @@ while true; do
         echo "Chain test-2 reached block $CHAIN_2_HEIGHT and created $ALLIANCES_ON_CHAIN_2 alliance successfully"
         break
     fi
+
     echo "Waiting for chains test-1 to reach block 25 (current height $CHAIN_1_HEIGHT) and test-2 to get over block 25 (current height $CHAIN_2_HEIGHT)"
+        if [ $CHAIN_1_HEIGHT == 30 ]; then
+        echo "Chan test-1 didn't halted!"
+        exit 1
+    fi
     sleep 1
 done
 
