@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"fmt"
-	"math/rand"
+	"math/rand" /* #nosec */
 	"os"
 	"path/filepath"
 	"testing"
@@ -108,7 +108,10 @@ func setup(tb testing.TB, chainID string, withGenesis bool, invCheckPeriod uint,
 
 	snapshotDB, err := dbm.NewDB("metadata", dbm.GoLevelDBBackend, snapshotDir)
 	require.NoError(tb, err)
-	tb.Cleanup(func() { snapshotDB.Close() })
+	tb.Cleanup(func() {
+		err := snapshotDB.Close()
+		require.NoError(tb, err)
+	})
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = nodeHome // ensure unique folder
@@ -322,6 +325,7 @@ func SignAndDeliverWithoutCommit(
 ) (sdk.GasInfo, *sdk.Result, error) {
 	t.Helper()
 	tx, err := simtestutil.GenSignedMockTx(
+		/* #nosec */
 		rand.New(rand.NewSource(time.Now().UnixNano())),
 		txCfg,
 		msgs,
