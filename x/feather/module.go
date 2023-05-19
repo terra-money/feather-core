@@ -48,6 +48,7 @@ func (a AppModuleBasic) ValidateGenesis(jsonCodec codec.JSONCodec, _ client.TxEn
 }
 
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	/* #nosec */
 	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)) //nolint:errcheck
 }
 

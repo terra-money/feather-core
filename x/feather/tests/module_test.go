@@ -48,7 +48,6 @@ func TestEndBlockWithoutHalting(t *testing.T) {
 	// ... setup a mocked genesis for feather module ...
 	app.FeatherKeeper.InitGenesis(ctx, types.GenesisState{
 		Params: types.Params{
-			HaltIfNoChannel:    false,
 			AllianceBondHeight: 2,
 		},
 	})
@@ -76,5 +75,4 @@ func TestEndBlockHalting(t *testing.T) {
 
 	// WHEN the end block is executed.
 	app.EndBlock(acbitypes.RequestEndBlock{Height: 2})
-
 }
