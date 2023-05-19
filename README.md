@@ -37,6 +37,10 @@ git push origin v0.1
 
 After a draft release is created, make your final changes from the release page and publish it.
 
+## Test Coverage
+
+If you want to have a test coverage report when commiting to a branch you must create an account on [codecov](https://docs.codecov.com/docs#getting-started), add the `CODECOV_TOKEN` to the repo and uncomment all lines from `.github/workflows/test-coverage.yml` file.
+
 ## Learn more
 
 - [Ignite CLI](https://ignite.com/cli)

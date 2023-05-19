@@ -135,15 +135,42 @@ Example:
 			config := serverCtx.Config
 
 			args := initArgs{}
-			args.outputDir, _ = cmd.Flags().GetString(flagOutputDir)
-			args.keyringBackend, _ = cmd.Flags().GetString(flags.FlagKeyringBackend)
-			args.chainID, _ = cmd.Flags().GetString(flags.FlagChainID)
-			args.minGasPrices, _ = cmd.Flags().GetString(server.FlagMinGasPrices)
-			args.nodeDirPrefix, _ = cmd.Flags().GetString(flagNodeDirPrefix)
-			args.nodeDaemonHome, _ = cmd.Flags().GetString(flagNodeDaemonHome)
-			args.startingIPAddress, _ = cmd.Flags().GetString(flagStartingIPAddress)
-			args.numValidators, _ = cmd.Flags().GetInt(flagNumValidators)
-			args.algo, _ = cmd.Flags().GetString(flags.FlagKeyType)
+			args.outputDir, err = cmd.Flags().GetString(flagOutputDir)
+			if err != nil {
+				return err
+			}
+			args.keyringBackend, err = cmd.Flags().GetString(flags.FlagKeyringBackend)
+			if err != nil {
+				return err
+			}
+			args.chainID, err = cmd.Flags().GetString(flags.FlagChainID)
+			if err != nil {
+				return err
+			}
+			args.minGasPrices, err = cmd.Flags().GetString(server.FlagMinGasPrices)
+			if err != nil {
+				return err
+			}
+			args.nodeDirPrefix, err = cmd.Flags().GetString(flagNodeDirPrefix)
+			if err != nil {
+				return err
+			}
+			args.nodeDaemonHome, err = cmd.Flags().GetString(flagNodeDaemonHome)
+			if err != nil {
+				return err
+			}
+			args.startingIPAddress, err = cmd.Flags().GetString(flagStartingIPAddress)
+			if err != nil {
+				return err
+			}
+			args.numValidators, err = cmd.Flags().GetInt(flagNumValidators)
+			if err != nil {
+				return err
+			}
+			args.algo, err = cmd.Flags().GetString(flags.FlagKeyType)
+			if err != nil {
+				return err
+			}
 
 			return initTestnetFiles(clientCtx, cmd, config, mbm, genBalIterator, args)
 		},
@@ -172,16 +199,48 @@ Example:
 	`,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			args := startArgs{}
-			args.outputDir, _ = cmd.Flags().GetString(flagOutputDir)
-			args.chainID, _ = cmd.Flags().GetString(flags.FlagChainID)
-			args.minGasPrices, _ = cmd.Flags().GetString(server.FlagMinGasPrices)
-			args.numValidators, _ = cmd.Flags().GetInt(flagNumValidators)
-			args.algo, _ = cmd.Flags().GetString(flags.FlagKeyType)
-			args.enableLogging, _ = cmd.Flags().GetBool(flagEnableLogging)
-			args.rpcAddress, _ = cmd.Flags().GetString(flagRPCAddress)
-			args.apiAddress, _ = cmd.Flags().GetString(flagAPIAddress)
-			args.grpcAddress, _ = cmd.Flags().GetString(flagGRPCAddress)
-			args.printMnemonic, _ = cmd.Flags().GetBool(flagPrintMnemonic)
+			outputDir, err := cmd.Flags().GetString(flagOutputDir)
+			if err != nil {
+				return err
+			}
+			args.outputDir = outputDir
+
+			args.chainID, err = cmd.Flags().GetString(flags.FlagChainID)
+			if err != nil {
+				return err
+			}
+			args.minGasPrices, err = cmd.Flags().GetString(server.FlagMinGasPrices)
+			if err != nil {
+				return err
+			}
+			args.numValidators, err = cmd.Flags().GetInt(flagNumValidators)
+			if err != nil {
+				return err
+			}
+			args.algo, err = cmd.Flags().GetString(flags.FlagKeyType)
+			if err != nil {
+				return err
+			}
+			args.enableLogging, err = cmd.Flags().GetBool(flagEnableLogging)
+			if err != nil {
+				return err
+			}
+			args.rpcAddress, err = cmd.Flags().GetString(flagRPCAddress)
+			if err != nil {
+				return err
+			}
+			args.apiAddress, err = cmd.Flags().GetString(flagAPIAddress)
+			if err != nil {
+				return err
+			}
+			args.grpcAddress, err = cmd.Flags().GetString(flagGRPCAddress)
+			if err != nil {
+				return err
+			}
+			args.printMnemonic, err = cmd.Flags().GetBool(flagPrintMnemonic)
+			if err != nil {
+				return err
+			}
 
 			return startTestnet(cmd, args)
 		},
@@ -239,19 +298,28 @@ func initTestnetFiles(
 		nodeConfig.RPC.ListenAddress = "tcp://0.0.0.0:26657"
 
 		if err := os.MkdirAll(filepath.Join(nodeDir, "config"), nodeDirPerm); err != nil {
-			_ = os.RemoveAll(args.outputDir)
+			err = os.RemoveAll(args.outputDir)
+			if err != nil {
+				return err
+			}
 			return err
 		}
 
 		ip, err := getIP(i, args.startingIPAddress)
 		if err != nil {
-			_ = os.RemoveAll(args.outputDir)
+			err = os.RemoveAll(args.outputDir)
+			if err != nil {
+				return err
+			}
 			return err
 		}
 
 		nodeIDs[i], valPubKeys[i], err = genutil.InitializeNodeValidatorFiles(nodeConfig)
 		if err != nil {
-			_ = os.RemoveAll(args.outputDir)
+			err = os.RemoveAll(args.outputDir)
+			if err != nil {
+				return err
+			}
 			return err
 		}
 
@@ -271,7 +339,10 @@ func initTestnetFiles(
 
 		addr, secret, err := testutil.GenerateSaveCoinKey(kb, nodeDirName, "", true, algo)
 		if err != nil {
-			_ = os.RemoveAll(args.outputDir)
+			err = os.RemoveAll(args.outputDir)
+			if err != nil {
+				return err
+			}
 			return err
 		}
 
@@ -477,7 +548,7 @@ func calculateIP(ip string, i int) (string, error) {
 func writeFile(name string, dir string, contents []byte) error {
 	file := filepath.Join(dir, name)
 
-	if err := os.MkdirAll(dir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o750); err != nil {
 		return fmt.Errorf("could not create directory %q: %w", dir, err)
 	}
 
