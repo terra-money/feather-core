@@ -1,7 +1,7 @@
 package simulation
 
 import (
-	"math/rand"
+	"math/rand" /* #nosec */
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -280,7 +280,10 @@ func SimulateMsgBurn(
 		}
 
 		// Rand burn amount
-		amount, _ := simtypes.RandPositiveInt(r, accountBalance.Amount)
+		amount, err := simtypes.RandPositiveInt(r, accountBalance.Amount)
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.MsgBurn{}.Type(), "err burning random amount"), nil, err
+		}
 		burnAmount := sdk.NewCoin(denom, amount)
 
 		// Create msg
@@ -328,7 +331,10 @@ func SimulateMsgMint(
 		}
 
 		// Rand mint amount
-		mintAmount, _ := simtypes.RandPositiveInt(r, sdk.NewIntFromUint64(100_000_000))
+		mintAmount, err := simtypes.RandPositiveInt(r, sdk.NewIntFromUint64(100_000_000))
+		if err != nil {
+			return simtypes.NoOpMsg(types.ModuleName, types.MsgMint{}.Type(), "err minting random amount"), nil, err
+		}
 
 		// Create msg mint
 		msg := types.MsgMint{

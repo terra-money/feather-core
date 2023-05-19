@@ -255,6 +255,9 @@ test-sim-import-export: runsim
 test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
+	
+simulate:
+	@go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1 -Seed 39
 
 integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
@@ -325,5 +328,5 @@ proto-check-breaking:
 
 .PHONY: all install install-debug \
 	go-mod-cache draw-deps clean build format \
-	test test-all test-build test-cover test-unit test-race \
-	test-sim-import-export \
+	test test-all test-build test-cover test-unit \
+	test-race simulate test-sim-import-export \

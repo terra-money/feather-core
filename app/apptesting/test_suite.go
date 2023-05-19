@@ -161,7 +161,8 @@ func (s *KeeperTestHelper) BeginNewBlock() {
 	} else {
 		valAddrFancy := s.SetupValidator(stakingtypes.Bonded)
 		validator, _ := s.App.StakingKeeper.GetValidator(s.Ctx, valAddrFancy)
-		valAddr2, _ := validator.GetConsAddr()
+		valAddr2, err := validator.GetConsAddr()
+		s.Require().NoError(err)
 		valAddr = valAddr2.Bytes()
 	}
 

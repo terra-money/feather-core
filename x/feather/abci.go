@@ -17,11 +17,6 @@ import (
 func EndBlock(ctx sdk.Context, k keeper.Keeper) []abci.ValidatorUpdate {
 	params := k.GetParams(ctx)
 
-	// if HaltIfNoChannel parameter is false, do nothing.
-	if !params.HaltIfNoChannel {
-		return []abci.ValidatorUpdate{}
-	}
-
 	// if the block height is not yet the specified in theparameter, do nothing.
 	if ctx.BlockHeight() != params.AllianceBondHeight {
 		return []abci.ValidatorUpdate{}
@@ -66,12 +61,21 @@ func EndBlock(ctx sdk.Context, k keeper.Keeper) []abci.ValidatorUpdate {
 			if denomTrace.BaseDenom == params.BaseDenom {
 				params.Alliance.Denom = denomTrace.IBCDenom()
 
-				k.AllianceKeeper.CreateAlliance(ctx, &params.Alliance)
+				err := k.AllianceKeeper.CreateAlliance(ctx, &params.Alliance)
+				if err != nil {
+					panic(err)
+				}
+
 				k.SetParams(ctx, params)
 
 				return []abci.ValidatorUpdate{}
 			}
 		}
+	}
+
+	// if HaltIfNoChannel parameter is false don't panic
+	if !params.HaltIfNoChannel {
+		return []abci.ValidatorUpdate{}
 	}
 
 	// If none of the previous conditions are met halt the chain
