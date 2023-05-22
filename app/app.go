@@ -839,6 +839,7 @@ func New(
 		app.AllianceKeeper,
 	)
 	modules = append(modules, feather.NewAppModule(cdc, app.FeatherKeeper))
+	simModules = append(simModules, feather.NewAppModule(cdc, app.FeatherKeeper))
 	/****  Module Options ****/
 
 	// NOTE: Any module instantiated in the module manager that is later modified
