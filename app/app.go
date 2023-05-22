@@ -832,7 +832,6 @@ func New(
 	// 2. 'ibc transfer'
 	// 3. 'alliance'
 	app.keys[feathertypes.StoreKey] = storetypes.NewKVStoreKey(feathertypes.StoreKey)
-	app.MountStores(app.keys[feathertypes.StoreKey])
 	app.FeatherKeeper = FeatherKeeper.NewKeeper(
 		app.ParamsKeeper.Subspace(feathertypes.ModuleName),
 		*app.IBCKeeper,
