@@ -13,4 +13,9 @@ func initSDKConfig() {
 	config.SetBech32PrefixForValidator(app.ValidatorAddressPrefix, app.ValidatorPubKeyPrefix)
 	config.SetBech32PrefixForConsensusNode(app.ConsensusNodeAddressPrefix, app.ConsensusNodePubKeyPrefix)
 	config.Seal()
+
+	// Set other sdk overrides
+
+	// change the default denomination in genesis
+	sdk.DefaultBondDenom = app.BondDenom
 }
