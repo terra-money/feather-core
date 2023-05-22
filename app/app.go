@@ -320,6 +320,8 @@ func New(
 	legacyAmino := encodingConfig.Amino
 	interfaceRegistry := encodingConfig.InterfaceRegistry
 	txConfig := encodingConfig.TxConfig
+	tkeys := make(map[string]*storetypes.TransientStoreKey)
+	memkeys := make(map[string]*storetypes.MemoryStoreKey)
 
 	// Init App
 	app := &App{
@@ -346,7 +348,6 @@ func New(
 
 	// 'auth' module
 	app.keys[authtypes.StoreKey] = storetypes.NewKVStoreKey(authtypes.StoreKey)
-	app.MountStores(app.keys[authtypes.StoreKey])
 	app.AuthKeeper = authkeeper.NewAccountKeeper(
 		cdc,
 		app.keys[authtypes.StoreKey],
@@ -365,7 +366,6 @@ func New(
 	// 'bank' module - depends on
 	// 1. 'auth'
 	app.keys[banktypes.StoreKey] = storetypes.NewKVStoreKey(banktypes.StoreKey)
-	app.MountStores(app.keys[banktypes.StoreKey])
 	app.BankKeeper = alliancebankkeeper.NewBaseKeeper( // Use 'alliance' module's custom implementation instead
 		cdc,
 		app.keys[banktypes.StoreKey],
@@ -380,7 +380,6 @@ func New(
 	// 1. 'auth'
 	// 2. 'bank'
 	app.keys[authzkeeper.StoreKey] = storetypes.NewKVStoreKey(authzkeeper.StoreKey)
-	app.MountStores(app.keys[authzkeeper.StoreKey])
 	app.AuthzKeeper = authzkeeper.NewKeeper(
 		app.keys[authzkeeper.StoreKey],
 		cdc,
@@ -392,12 +391,11 @@ func New(
 
 	// 'capability' module
 	app.keys[capabilitytypes.StoreKey] = storetypes.NewKVStoreKey(capabilitytypes.StoreKey)
-	capabilityMemStoreKey := storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey)
-	app.MountStores(app.keys[capabilitytypes.StoreKey], capabilityMemStoreKey)
+	memkeys[capabilitytypes.MemStoreKey] = storetypes.NewMemoryStoreKey(capabilitytypes.MemStoreKey)
 	app.CapabilityKeeper = capabilitykeeper.NewKeeper(
 		cdc,
 		app.keys[capabilitytypes.StoreKey],
-		capabilityMemStoreKey,
+		memkeys[capabilitytypes.MemStoreKey],
 	)
 	defer app.CapabilityKeeper.Seal()
 	modules = append(modules, capability.NewAppModule(cdc, *app.CapabilityKeeper, false)) // TODO: Find out what is sealkeeper
@@ -405,7 +403,6 @@ func New(
 
 	// 'consensus' module
 	app.keys[consensustypes.StoreKey] = storetypes.NewKVStoreKey(consensustypes.StoreKey)
-	app.MountStores(app.keys[consensustypes.StoreKey])
 	app.ConsensusParamsKeeper = consensuskeeper.NewKeeper(
 		cdc,
 		app.keys[consensustypes.StoreKey],
@@ -417,7 +414,6 @@ func New(
 	// 'crisis' module - depends on
 	// 1. 'bank'
 	app.keys[crisistypes.StoreKey] = storetypes.NewKVStoreKey(crisistypes.StoreKey)
-	app.MountStores(app.keys[crisistypes.StoreKey])
 	app.CrisisKeeper = crisiskeeper.NewKeeper(
 		cdc,
 		app.keys[crisistypes.StoreKey],
@@ -433,7 +429,6 @@ func New(
 	// 1. 'auth'
 	// 2. 'bank'
 	app.keys[feegrant.StoreKey] = storetypes.NewKVStoreKey(feegrant.StoreKey)
-	app.MountStores(app.keys[feegrant.StoreKey])
 	app.FeeGrantKeeper = feegrantkeeper.NewKeeper(
 		cdc,
 		app.keys[feegrant.StoreKey],
@@ -446,7 +441,6 @@ func New(
 	// 1. 'auth'
 	// 2. 'bank'
 	app.keys[group.StoreKey] = storetypes.NewKVStoreKey(group.StoreKey)
-	app.MountStores(app.keys[group.StoreKey])
 	app.GroupKeeper = groupkeeper.NewKeeper(
 		app.keys[group.StoreKey],
 		cdc,
@@ -465,7 +459,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[stakingtypes.NotBondedPoolName] = authtypes.NewPermissionsForAddress(stakingtypes.NotBondedPoolName, []string{authtypes.Burner, authtypes.Staking})
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(stakingtypes.NotBondedPoolName).String()] = true
 	app.keys[stakingtypes.StoreKey] = storetypes.NewKVStoreKey(stakingtypes.StoreKey)
-	app.MountStores(app.keys[stakingtypes.StoreKey])
 	app.StakingKeeper = stakingkeeper.NewKeeper(
 		cdc,
 		app.keys[stakingtypes.StoreKey],
@@ -485,7 +478,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[minttypes.ModuleName] = authtypes.NewPermissionsForAddress(minttypes.ModuleName, []string{authtypes.Minter})
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(minttypes.ModuleName).String()] = true
 	app.keys[minttypes.StoreKey] = storetypes.NewKVStoreKey(minttypes.StoreKey)
-	app.MountStores(app.keys[minttypes.StoreKey])
 	app.MintKeeper = mintkeeper.NewKeeper(
 		cdc,
 		app.keys[minttypes.StoreKey],
@@ -504,7 +496,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[nft.ModuleName] = authtypes.NewPermissionsForAddress(nft.ModuleName, nil)
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(nft.ModuleName).String()] = true
 	app.keys[nftkeeper.StoreKey] = storetypes.NewKVStoreKey(nftkeeper.StoreKey)
-	app.MountStores(app.keys[nftkeeper.StoreKey])
 	app.NftKeeper = nftkeeper.NewKeeper(
 		app.keys[nftkeeper.StoreKey],
 		cdc,
@@ -529,7 +520,6 @@ func New(
 	// 2. 'auth'
 	// 3. 'bank'
 	app.keys[slashingtypes.StoreKey] = storetypes.NewKVStoreKey(slashingtypes.StoreKey)
-	app.MountStores(app.keys[slashingtypes.StoreKey])
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		cdc,
 		encodingConfig.Amino,
@@ -547,7 +537,6 @@ func New(
 	// 3. 'staking'
 	app.AuthKeeper.GetModulePermissions()[govtypes.ModuleName] = authtypes.NewPermissionsForAddress(govtypes.ModuleName, []string{authtypes.Burner})
 	app.keys[govtypes.StoreKey] = storetypes.NewKVStoreKey(govtypes.StoreKey)
-	app.MountStores(app.keys[govtypes.StoreKey])
 	app.GovKeeper = *govkeeper.NewKeeper(
 		cdc,
 		app.keys[govtypes.StoreKey],
@@ -573,7 +562,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[distrtypes.ModuleName] = authtypes.NewPermissionsForAddress(distrtypes.ModuleName, nil)
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(distrtypes.ModuleName).String()] = true
 	app.keys[distrtypes.StoreKey] = storetypes.NewKVStoreKey(distrtypes.StoreKey)
-	app.MountStores(app.keys[distrtypes.StoreKey])
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		cdc,
 		app.keys[distrtypes.StoreKey],
@@ -590,13 +578,12 @@ func New(
 	// 'params' module - depends on
 	// 1. 'gov'
 	app.keys[paramstypes.StoreKey] = storetypes.NewKVStoreKey(paramstypes.StoreKey)
-	paramsTStoreKey := storetypes.NewTransientStoreKey(paramstypes.TStoreKey)
-	app.MountStores(app.keys[paramstypes.StoreKey], paramsTStoreKey)
+	tkeys[paramstypes.TStoreKey] = storetypes.NewTransientStoreKey(paramstypes.TStoreKey)
 	app.ParamsKeeper = paramskeeper.NewKeeper(
 		cdc,
 		legacyAmino,
 		app.keys[paramstypes.StoreKey],
-		paramsTStoreKey,
+		tkeys[paramstypes.TStoreKey],
 	)
 	govLegacyRouter.AddRoute(paramsproposaltypes.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper))
 	modules = append(modules, params.NewAppModule(app.ParamsKeeper))
@@ -606,7 +593,6 @@ func New(
 	// 1. 'staking'
 	// 2. 'slashing'
 	app.keys[evidencetypes.StoreKey] = storetypes.NewKVStoreKey(evidencetypes.StoreKey)
-	app.MountStores(app.keys[evidencetypes.StoreKey])
 	app.EvidenceKeeper = *evidencekeeper.NewKeeper(
 		cdc,
 		app.keys[evidencetypes.StoreKey],
@@ -619,7 +605,6 @@ func New(
 	// 'upgrade' module - depends on
 	// 1. 'gov'
 	app.keys[upgradetypes.StoreKey] = storetypes.NewKVStoreKey(upgradetypes.StoreKey)
-	app.MountStores(app.keys[upgradetypes.StoreKey])
 	app.UpgradeKeeper = upgradekeeper.NewKeeper(
 		skipUpgradeHeights, // TODO: What is this?
 		app.keys[upgradetypes.StoreKey],
@@ -636,7 +621,6 @@ func New(
 	// 2. 'bank'
 	// 3. 'distr'
 	app.keys[tokenfactorytypes.StoreKey] = storetypes.NewKVStoreKey(tokenfactorytypes.StoreKey)
-	app.MountStores(app.keys[tokenfactorytypes.StoreKey])
 	app.TokenFactoryKeeper = tokenfactorykeeper.NewKeeper(
 		app.keys[tokenfactorytypes.StoreKey],
 		app.ParamsKeeper.Subspace(tokenfactorytypes.ModuleName),
@@ -653,7 +637,6 @@ func New(
 	// 4. 'gov'
 	// 5. 'params'
 	app.keys[ibcexported.StoreKey] = storetypes.NewKVStoreKey(ibcexported.StoreKey)
-	app.MountStores(app.keys[ibcexported.StoreKey])
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		cdc,
 		app.keys[ibcexported.StoreKey],
@@ -707,7 +690,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[ibctransfertypes.ModuleName] = authtypes.NewPermissionsForAddress(ibctransfertypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(ibctransfertypes.ModuleName).String()] = true
 	app.keys[ibctransfertypes.StoreKey] = storetypes.NewKVStoreKey(ibctransfertypes.StoreKey)
-	app.MountStores(app.keys[ibctransfertypes.StoreKey])
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		cdc,
 		app.keys[ibctransfertypes.StoreKey],
@@ -731,7 +713,6 @@ func New(
 	// 1. 'ibc'
 	// 2. 'capability'
 	app.keys[icacontrollertypes.StoreKey] = storetypes.NewKVStoreKey(icacontrollertypes.StoreKey)
-	app.MountStores(app.keys[icacontrollertypes.StoreKey])
 	icaControllerKeeper := icacontrollerkeeper.NewKeeper(
 		cdc,
 		app.keys[icacontrollertypes.StoreKey],
@@ -749,7 +730,6 @@ func New(
 	// 3. 'capability'
 	// 4. 'icacontroller'
 	app.keys[icahosttypes.StoreKey] = storetypes.NewKVStoreKey(icahosttypes.StoreKey)
-	app.MountStores(app.keys[icahosttypes.StoreKey])
 	app.ICAHostKeeper = icahostkeeper.NewKeeper(
 		cdc,
 		app.keys[icahosttypes.StoreKey],
@@ -777,7 +757,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[wasmtypes.ModuleName] = authtypes.NewPermissionsForAddress(wasmtypes.ModuleName, []string{authtypes.Burner})
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(wasmtypes.ModuleName).String()] = true
 	app.keys[wasmtypes.StoreKey] = storetypes.NewKVStoreKey(wasmtypes.StoreKey)
-	app.MountStores(app.keys[wasmtypes.StoreKey])
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
 		panic(fmt.Sprintf("error while reading wasm config: %s", err))
@@ -810,7 +789,6 @@ func New(
 	// 2. 'bank'
 	// 3. 'distr'
 	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
-	app.MountStores(app.keys[ibchookstypes.StoreKey])
 	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
 		app.keys[ibchookstypes.StoreKey],
 	)
@@ -822,7 +800,6 @@ func New(
 	// Hooks Middleware
 	transferIBCModule := ibctransfer.NewIBCModule(app.TransferKeeper)
 	app.TransferStack = ibchooks.NewIBCMiddleware(&transferIBCModule, &app.HooksICS4Wrapper)
-	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
 
 	// 'alliance' module - depends on
 	// 1. 'auth'
@@ -836,7 +813,6 @@ func New(
 	app.AuthKeeper.GetModulePermissions()[alliancetypes.RewardsPoolName] = authtypes.NewPermissionsForAddress(alliancetypes.RewardsPoolName, nil)
 	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(alliancetypes.RewardsPoolName).String()] = true
 	app.keys[alliancetypes.StoreKey] = storetypes.NewKVStoreKey(alliancetypes.StoreKey)
-	app.MountStores(app.keys[alliancetypes.StoreKey])
 	app.AllianceKeeper = alliancekeeper.NewKeeper(
 		cdc,
 		app.keys[alliancetypes.StoreKey],
@@ -982,6 +958,10 @@ func New(
 
 	app.configurator = module.NewConfigurator(cdc, app.MsgServiceRouter(), app.GRPCQueryRouter())
 	app.ModuleManager.RegisterServices(app.configurator)
+
+	app.MountKVStores(app.keys)
+	app.MountTransientStores(tkeys)
+	app.MountMemoryStores(memkeys)
 
 	// create the simulation manager and define the order of the modules for deterministic simulations
 	app.sm = module.NewSimulationManager(simModules...)
