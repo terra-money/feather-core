@@ -1,0 +1,10 @@
+syntax = "proto3";
+package feather;
+
+import "gogoproto/gogo.proto";
+import "feather/params.proto";
+
+option go_package = "github.com/terra-money/feather-core/x/feather/types";
+
+// GenesisState defines the module's genesis state.
+message GenesisState { Params params = 1 [ (gogoproto.nullable) = false ]; }
