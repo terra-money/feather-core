@@ -48,7 +48,10 @@ func (m MsgCreateDenom) GetSignBytes() []byte {
 }
 
 func (m MsgCreateDenom) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }
 
@@ -82,7 +85,10 @@ func (m MsgMint) GetSignBytes() []byte {
 }
 
 func (m MsgMint) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }
 
@@ -116,7 +122,10 @@ func (m MsgBurn) GetSignBytes() []byte {
 }
 
 func (m MsgBurn) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }
 
@@ -202,7 +211,10 @@ func (m MsgChangeAdmin) GetSignBytes() []byte {
 }
 
 func (m MsgChangeAdmin) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }
 
@@ -242,6 +254,9 @@ func (m MsgSetDenomMetadata) GetSignBytes() []byte {
 }
 
 func (m MsgSetDenomMetadata) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
+	sender, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		panic(err)
+	}
 	return []sdk.AccAddress{sender}
 }

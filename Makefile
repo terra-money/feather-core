@@ -10,11 +10,7 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
 GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 JQ := $(shell which jq)
-
-# for dockerized protobuf tools
-BUF_IMAGE=bufbuild/buf@sha256:3cb1f8a4b48bd5ad8f09168f10f607ddc318af202f5c057d52a45216793d85e5 #v1.4.0
-DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(BUF_IMAGE)
-HTTPS_GIT := https://github.com/CosmWasm/wasmd.git
+HTTPS_GIT := https://github.com/terra-money/feather-core.git
 
 export GO111MODULE = on
 
@@ -233,12 +229,12 @@ clean:
 distclean: clean
 	rm -rf vendor/
 
-########################################
-### Testing
-
+###############################################################################
+###                                Testing                                  ###
+###############################################################################
 
 test: test-unit
-test-all: check test-race test-cover
+test-all: test-race test-cover
 
 test-unit:
 	@VERSION=$(VERSION) go test -mod=readonly -tags='ledger test_ledger_mock' ./...
@@ -259,6 +255,31 @@ test-sim-import-export: runsim
 test-sim-multi-seed-short: runsim
 	@echo "Running short multi-seed application simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
+	
+simulate:
+	@go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1
+
+integration-test: clean-integration-test-data install
+	@echo "Initializing both blockchains..."
+	./scripts/tests/start.sh
+	@echo "Create relayer..."
+	./scripts/tests/relayer/rly-init.sh
+	@echo "Transfer coin from chain test-1 to test-2..."
+	./scripts/tests/feather/transfer.sh
+	@echo "Validate the creation of alliance throught feather..."
+	./scripts/tests/feather/validate-alliance.sh
+	@echo "Killing feather-cored and removing previous data"
+	-@rm -rf ./.test-data
+	-@killall feather-cored 2>/dev/null
+	-@killall rly 2>/dev/null
+
+clean-integration-test-data:
+	@echo "Killing feather-cored and removing previous data"
+	-@rm -rf ./.test-data
+	-@killall feather-cored 2>/dev/null
+	-@killall rly 2>/dev/null
+
+.PHONY: integration-test clean-integration-test-data
 
 ###############################################################################
 ###                                Linting                                  ###
@@ -273,39 +294,39 @@ lint: format-tools
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "*_test.go" | xargs gofumpt -d -s
 
 format: format-tools
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs gofumpt -w -s
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs misspell -w
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/lcd/statik/statik.go" | xargs goimports -w -local github.com/CosmWasm/wasmd
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofumpt -w 
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs misspell -w
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs goimports -w -local github.com/CosmWasm/wasmd
 
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
-PROTO_BUILDER_IMAGE=tendermintdev/sdk-proto-gen:v0.7
-PROTO_FORMATTER_IMAGE=tendermintdev/docker-build-proto@sha256:aabcfe2fc19c31c0f198d4cd26393f5e5ca9502d7ea3feafbfe972448fee7cae
+protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder
 
 proto-all: proto-format proto-lint proto-gen format
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(PROTO_BUILDER_IMAGE) sh ./scripts/protocgen.sh
+	@$(protoImage) sh ./scripts/protocgen.sh
 
 proto-format:
 	@echo "Formatting Protobuf files"
-	$(DOCKER) run --rm -v $(CURDIR):/workspace \
-	--workdir /workspace $(PROTO_FORMATTER_IMAGE) \
-	find ./ -name *.proto -exec clang-format -i {} \;
+	@$(protoImage) find ./ -name "*.proto" -exec clang-format -i {} \;
 
 proto-swagger-gen:
-	@./scripts/protoc-swagger-gen.sh
+	@echo "Generating Protobuf Swagger"
+	sh ./scripts/protoc-swagger-gen.sh
 
 proto-lint:
-	@$(DOCKER_BUF) lint --error-format=json
+	@echo "Lint Protobuf files"
+	@$(protoImage) buf lint --error-format=json
 
 proto-check-breaking:
-	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
+	@echo "Check Protobuf breaking changes"
+	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
 .PHONY: all install install-debug \
 	go-mod-cache draw-deps clean build format \
-	test test-all test-build test-cover test-unit test-race \
-	test-sim-import-export \
+	test test-all test-build test-cover test-unit \
+	test-race simulate test-sim-import-export \

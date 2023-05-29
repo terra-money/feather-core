@@ -7,3 +7,6 @@ release/
 dist
 build
 vendor/
+tmp-swagger-gen/
+.test-data/
+coverage.txt

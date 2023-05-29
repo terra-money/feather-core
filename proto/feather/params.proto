@@ -1,0 +1,16 @@
+syntax = "proto3";
+package feather;
+
+import "alliance/gov.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/terra-money/feather-core/x/feather/types";
+
+message Params {
+  bool halt_if_no_channel = 1;
+  string base_denom = 2;
+  string base_chain_id = 3;
+  int64 alliance_bond_height = 4;
+  alliance.MsgCreateAllianceProposal alliance = 5
+      [ (gogoproto.nullable) = false ];
+}

@@ -4,9 +4,10 @@ package types
 //
 //nolint:gosec // these are not hard-coded credentials
 const (
-	AttributeAmount              = "amount"
-	AttributeCreator             = "creator"
-	AttributeSubdenom            = "subdenom"
+	AttributeAmount   = "amount"
+	AttributeCreator  = "creator"
+	AttributeSubdenom = "subdenom"
+	/* #nosec */
 	AttributeNewTokenDenom       = "new_token_denom"
 	AttributeMintToAddress       = "mint_to_address"
 	AttributeBurnFromAddress     = "burn_from_address"

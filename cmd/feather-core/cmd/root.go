@@ -195,23 +195,6 @@ func txCommand() *cobra.Command {
 	return cmd
 }
 
-// startWithTunnelingCommand returns a new start command with http tunneling
-// enabled.
-func startWithTunnelingCommand(appCreator appCreator, defaultNodeHome string) *cobra.Command {
-	startCmd := server.StartCmd(appCreator.newApp, defaultNodeHome)
-	startCmd.Use = "start-with-http-tunneling"
-	startCmd.Short = "Run the full node with http tunneling"
-	// Backup existing PreRunE, since we'll override it.
-	startPreRunE := startCmd.PreRunE
-	startCmd.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if startPreRunE == nil {
-			return nil
-		}
-		return startPreRunE(cmd, args)
-	}
-	return startCmd
-}
-
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	// this line is used by starport scaffolding # root/arguments
