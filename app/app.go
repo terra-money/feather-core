@@ -682,6 +682,20 @@ func New(
 		AddRoute(ibctransfertypes.ModuleName, hooksTransferStack).
 		AddRoute(wasm.ModuleName, wasmStack))
 
+	// 'ibc-hooks' module - depends on
+	// 1. 'auth'
+	// 2. 'bank'
+	// 3. 'distr'
+	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
+	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
+		app.keys[ibchookstypes.StoreKey],
+	)
+	app.Ics20WasmHooks = ibchooks.NewWasmHooks(&app.IBCHooksKeeper, nil, AccountAddressPrefix) // The contract keeper needs to be set later
+	app.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
+		app.IBCKeeper.ChannelKeeper,
+		app.Ics20WasmHooks,
+	)
+
 	// 'ibctransfer' module - depends on
 	// 1. 'ibc'
 	// 2. 'auth'
@@ -694,7 +708,7 @@ func New(
 		cdc,
 		app.keys[ibctransfertypes.StoreKey],
 		app.ParamsKeeper.Subspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
+		app.HooksICS4Wrapper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AuthKeeper,
@@ -784,19 +798,6 @@ func New(
 	modules = append(modules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 	simModules = append(simModules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 
-	// 'ibc-hooks' module - depends on
-	// 1. 'auth'
-	// 2. 'bank'
-	// 3. 'distr'
-	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
-	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
-		app.keys[ibchookstypes.StoreKey],
-	)
-	app.Ics20WasmHooks = ibchooks.NewWasmHooks(&app.IBCHooksKeeper, nil, AccountAddressPrefix) // The contract keeper needs to be set later
-	app.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
-		app.IBCKeeper.ChannelKeeper,
-		app.Ics20WasmHooks,
-	)
 	// Hooks Middleware
 	transferIBCModule := ibctransfer.NewIBCModule(app.TransferKeeper)
 	app.TransferStack = ibchooks.NewIBCMiddleware(&transferIBCModule, &app.HooksICS4Wrapper)
