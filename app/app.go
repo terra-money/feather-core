@@ -290,9 +290,9 @@ type App struct {
 	FeatherKeeper         FeatherKeeper.Keeper
 
 	// IBC hooks
-	IBCHooksKeeper   ibchookskeeper.Keeper
-	TransferStack    ibchooks.IBCMiddleware
-	Ics20WasmHooks   ibchooks.WasmHooks
+	IBCHooksKeeper   *ibchookskeeper.Keeper
+	TransferStack    *ibchooks.IBCMiddleware
+	Ics20WasmHooks   *ibchooks.WasmHooks
 	HooksICS4Wrapper ibchooks.ICS4Middleware
 
 	// ModuleManager is the module manager
@@ -663,7 +663,6 @@ func New(
 		app.AuthKeeper,
 		app.BankKeeper,
 	)
-	hooksTransferStack := ibchooks.NewIBCMiddleware(&app.TransferStack, &app.HooksICS4Wrapper)
 	app.keys[ibcporttypes.StoreKey] = storetypes.NewKVStoreKey(ibcporttypes.StoreKey)
 	app.AuthKeeper.GetModulePermissions()[ibctransfertypes.ModuleName] = authtypes.NewPermissionsForAddress(ibcfeetypes.ModuleName, nil)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
@@ -672,25 +671,17 @@ func New(
 	modules = append(modules, ibcfee.NewAppModule(app.IBCFeeKeeper))
 	simModules = append(simModules, ibcfee.NewAppModule(app.IBCFeeKeeper))
 
-	// Create fee enabled wasm ibc Stack
-	var wasmStack ibcporttypes.IBCModule
-	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
-	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
-
-	app.IBCKeeper.SetRouter(ibcporttypes.NewRouter().
-		AddRoute(icahosttypes.SubModuleName, icaHostStack).
-		AddRoute(ibctransfertypes.ModuleName, hooksTransferStack).
-		AddRoute(wasm.ModuleName, wasmStack))
-
 	// 'ibc-hooks' module - depends on
 	// 1. 'auth'
 	// 2. 'bank'
 	// 3. 'distr'
 	app.keys[ibchookstypes.StoreKey] = storetypes.NewKVStoreKey(ibchookstypes.StoreKey)
-	app.IBCHooksKeeper = ibchookskeeper.NewKeeper(
+	hooksKeeper := ibchookskeeper.NewKeeper(
 		app.keys[ibchookstypes.StoreKey],
 	)
-	app.Ics20WasmHooks = ibchooks.NewWasmHooks(&app.IBCHooksKeeper, nil, AccountAddressPrefix) // The contract keeper needs to be set later
+	app.IBCHooksKeeper = &hooksKeeper
+	wasmHooks := ibchooks.NewWasmHooks(&hooksKeeper, nil, AccountAddressPrefix) // The contract keeper needs to be set later
+	app.Ics20WasmHooks = &wasmHooks
 	app.HooksICS4Wrapper = ibchooks.NewICS4Middleware(
 		app.IBCKeeper.ChannelKeeper,
 		app.Ics20WasmHooks,
@@ -715,7 +706,24 @@ func New(
 		app.BankKeeper,
 		app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName),
 	)
-	// app.IBCKeeper.Router.AddRoute(ibctransfertypes.ModuleName, transfer.NewIBCModule(app.TransferKeeper))
+
+	// Hooks Middleware
+	transferIBCModule := ibctransfer.NewIBCModule(app.TransferKeeper)
+	hooksTransferStack := ibchooks.NewIBCMiddleware(&transferIBCModule, &app.HooksICS4Wrapper)
+	app.TransferStack = &hooksTransferStack
+
+	// Create fee enabled wasm ibc Stack
+	var wasmStack ibcporttypes.IBCModule
+	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
+	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
+
+	ibcRouter := ibcporttypes.NewRouter().
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
+		AddRoute(ibctransfertypes.ModuleName, hooksTransferStack).
+		AddRoute(wasm.ModuleName, wasmStack)
+
+	app.IBCKeeper.SetRouter(ibcRouter)
+
 	modules = append(modules, ibctransfer.NewAppModule(app.TransferKeeper))
 	simModules = append(simModules, ibctransfer.NewAppModule(app.TransferKeeper))
 
@@ -794,13 +802,13 @@ func New(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		GetWasmOpts(app, appOpts)...,
 	)
+	app.Ics20WasmHooks.ContractKeeper = &app.WasmKeeper
+
 	govLegacyRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.WasmKeeper, wasm.EnableAllProposals))
 	modules = append(modules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 	simModules = append(simModules, wasm.NewAppModule(cdc, &app.WasmKeeper, app.StakingKeeper, app.AuthKeeper, app.BankKeeper, app.MsgServiceRouter(), nil))
 
 	// Hooks Middleware
-	transferIBCModule := ibctransfer.NewIBCModule(app.TransferKeeper)
-	app.TransferStack = ibchooks.NewIBCMiddleware(&transferIBCModule, &app.HooksICS4Wrapper)
 
 	// 'alliance' module - depends on
 	// 1. 'auth'

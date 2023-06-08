@@ -31,6 +31,19 @@ if pgrep -x "$BINARY" >/dev/null; then
     killall $BINARY
 fi
 
+# Ensure go-rly is installed
+if ! [ -x "$(command -v rly)" ]; then
+    echo "rly is required to run this script..."
+    echo "You can download at https://github.com/cosmos/relayer/releases/tag/v2.3.1"
+    exit 1
+fi
+
+# Ensure screen manager with VT100/ANSI terminal emulation is installed
+if ! [ -x "$(command -v screen)" ]; then
+    echo "screen is required to run this script..."
+    echo "You can download at https://git.savannah.gnu.org/cgit/screen.git"
+    exit 1
+fi
 echo "Removing previous data..."
 rm -rf $CHAIN_DIR/$CHAINID_1 &> /dev/null
 rm -rf $CHAIN_DIR/$CHAINID_2 &> /dev/null
@@ -73,16 +86,16 @@ $BINARY genesis add-genesis-account $RLY1_ADDR 1000000000000stake --home $CHAIN_
 $BINARY genesis add-genesis-account $RLY2_ADDR 1000000000000stake --home $CHAIN_DIR/$CHAINID_2
 
 echo "Creating and collecting gentx..."
-$BINARY genesis gentx val1 7000000000stake --home $CHAIN_DIR/$CHAINID_1 --chain-id $CHAINID_1 --keyring-backend test
-$BINARY genesis gentx val2 7000000000stake --home $CHAIN_DIR/$CHAINID_2 --chain-id $CHAINID_2 --keyring-backend test
+$BINARY genesis gentx val1 6500000000stake --home $CHAIN_DIR/$CHAINID_1 --chain-id $CHAINID_1 --keyring-backend test
+$BINARY genesis gentx val2 6500000000stake --home $CHAIN_DIR/$CHAINID_2 --chain-id $CHAINID_2 --keyring-backend test
 $BINARY genesis collect-gentxs --home $CHAIN_DIR/$CHAINID_1 &> /dev/null
 $BINARY genesis collect-gentxs --home $CHAIN_DIR/$CHAINID_2 &> /dev/null
 
 echo "Changing defaults and ports in app.toml and config.toml files..."
 sed -i -e 's#"tcp://0.0.0.0:26656"#"tcp://0.0.0.0:'"$P2PPORT_1"'"#g' $CHAIN_DIR/$CHAINID_1/config/config.toml
 sed -i -e 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$RPCPORT_1"'"#g' $CHAIN_DIR/$CHAINID_1/config/config.toml
-sed -i -e 's/timeout_commit = "5s"/timeout_commit = "2s"/g' $CHAIN_DIR/$CHAINID_1/config/config.toml
-sed -i -e 's/timeout_propose = "3s"/timeout_propose = "2s"/g' $CHAIN_DIR/$CHAINID_1/config/config.toml
+sed -i -e 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $CHAIN_DIR/$CHAINID_1/config/config.toml
+sed -i -e 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CHAIN_DIR/$CHAINID_1/config/config.toml
 sed -i -e 's/enable = false/enable = true/g' $CHAIN_DIR/$CHAINID_1/config/app.toml
 sed -i -e 's/swagger = false/swagger = true/g' $CHAIN_DIR/$CHAINID_1/config/app.toml
 sed -i -e 's#"tcp://localhost:1317"#"tcp://0.0.0.0:'"$RESTPORT_1"'"#g' $CHAIN_DIR/$CHAINID_1/config/app.toml
@@ -90,8 +103,8 @@ sed -i -e 's#":8080"#":'"$ROSETTA_1"'"#g' $CHAIN_DIR/$CHAINID_1/config/app.toml
 
 sed -i -e 's#"tcp://0.0.0.0:26656"#"tcp://0.0.0.0:'"$P2PPORT_2"'"#g' $CHAIN_DIR/$CHAINID_2/config/config.toml
 sed -i -e 's#"tcp://127.0.0.1:26657"#"tcp://0.0.0.0:'"$RPCPORT_2"'"#g' $CHAIN_DIR/$CHAINID_2/config/config.toml
-sed -i -e 's/timeout_commit = "5s"/timeout_commit = "2s"/g' $CHAIN_DIR/$CHAINID_2/config/config.toml
-sed -i -e 's/timeout_propose = "3s"/timeout_propose = "2s"/g' $CHAIN_DIR/$CHAINID_2/config/config.toml
+sed -i -e 's/timeout_commit = "5s"/timeout_commit = "1s"/g' $CHAIN_DIR/$CHAINID_2/config/config.toml
+sed -i -e 's/timeout_propose = "3s"/timeout_propose = "1s"/g' $CHAIN_DIR/$CHAINID_2/config/config.toml
 sed -i -e 's/enable = false/enable = true/g' $CHAIN_DIR/$CHAINID_2/config/app.toml
 sed -i -e 's/swagger = false/swagger = true/g' $CHAIN_DIR/$CHAINID_2/config/app.toml
 sed -i -e 's#"tcp://localhost:1317"#"tcp://0.0.0.0:'"$RESTPORT_2"'"#g' $CHAIN_DIR/$CHAINID_2/config/app.toml
@@ -104,10 +117,9 @@ sed -i -e 's/"reward_delay_time": "604800s"/"reward_delay_time": "0s"/g' $CHAIN_
 sed -i -e 's/"reward_delay_time": "604800s"/"reward_delay_time": "0s"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
-sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-2"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-1"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "65"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "65"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 
