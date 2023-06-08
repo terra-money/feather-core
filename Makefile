@@ -268,12 +268,12 @@ integration-test: clean-integration-test-data install
 	./scripts/tests/feather/transfer.sh
 	@echo "Validate the execution of ibc-hooks requests..."
 	./scripts/tests/ibc-hooks/increment.sh
-#	@echo "Validate the creation of alliance throught feather..."
-#	./scripts/tests/feather/validate-alliance.sh
-#	@echo "Stopping feather-cored and removing previous data"
-#	-@rm -rf ./.test-data
-#	-@killall feather-cored 2>/dev/null
-#	-@killall rly 2>/dev/null
+	@echo "Validate the creation of alliance throught feather..."
+	./scripts/tests/feather/validate-alliance.sh
+	@echo "Stopping feather-cored and removing previous data"
+	-@rm -rf ./.test-data
+	-@killall feather-cored 2>/dev/null
+	-@killall rly 2>/dev/null
 
 clean-integration-test-data:
 	@echo "Stopping feather-cored and removing previous data"

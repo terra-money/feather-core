@@ -699,7 +699,7 @@ func New(
 		cdc,
 		app.keys[ibctransfertypes.StoreKey],
 		app.ParamsKeeper.Subspace(ibctransfertypes.ModuleName),
-		app.IBCKeeper.ChannelKeeper,
+		app.HooksICS4Wrapper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.AuthKeeper,
@@ -717,10 +717,12 @@ func New(
 	wasmStack = wasm.NewIBCHandler(app.WasmKeeper, app.IBCKeeper.ChannelKeeper, app.IBCFeeKeeper)
 	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, app.IBCFeeKeeper)
 
-	app.IBCKeeper.SetRouter(ibcporttypes.NewRouter().
+	ibcRouter := ibcporttypes.NewRouter().
 		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, hooksTransferStack).
-		AddRoute(wasm.ModuleName, wasmStack))
+		AddRoute(wasm.ModuleName, wasmStack)
+
+	app.IBCKeeper.SetRouter(ibcRouter)
 
 	modules = append(modules, ibctransfer.NewAppModule(app.TransferKeeper))
 	simModules = append(simModules, ibctransfer.NewAppModule(app.TransferKeeper))

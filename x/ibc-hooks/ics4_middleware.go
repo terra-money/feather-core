@@ -2,7 +2,6 @@ package ibc_hooks
 
 import (
 	// external libraries
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
@@ -30,21 +29,17 @@ func NewICS4Middleware(channel porttypes.ICS4Wrapper, hooks Hooks) ICS4Middlewar
 }
 
 func (i ICS4Middleware) SendPacket(ctx sdk.Context, channelCap *capabilitytypes.Capability, sourcePort string, sourceChannel string, timeoutHeight ibcclienttypes.Height, timeoutTimestamp uint64, data []byte) (sequence uint64, err error) {
-	fmt.Printf("ICS4Middleware.SendPacket %v \n", data)
 	if hook, ok := i.Hooks.(SendPacketOverrideHooks); ok {
-		fmt.Printf("ICS4Middleware.SendPacketOverrideHooks")
 		return hook.SendPacketOverride(i, ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	}
 
 	if hook, ok := i.Hooks.(SendPacketBeforeHooks); ok {
-		fmt.Printf("ICS4Middleware.SendPacketBeforeHooks")
 		hook.SendPacketBeforeHook(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	}
 
 	seq, err := i.channel.SendPacket(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 
 	if hook, ok := i.Hooks.(SendPacketAfterHooks); ok {
-		fmt.Printf("ICS4Middleware.SendPacketAfterHooks")
 		hook.SendPacketAfterHook(ctx, channelCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data, err)
 	}
 

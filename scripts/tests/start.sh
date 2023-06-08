@@ -86,8 +86,8 @@ $BINARY genesis add-genesis-account $RLY1_ADDR 1000000000000stake --home $CHAIN_
 $BINARY genesis add-genesis-account $RLY2_ADDR 1000000000000stake --home $CHAIN_DIR/$CHAINID_2
 
 echo "Creating and collecting gentx..."
-$BINARY genesis gentx val1 7000000000stake --home $CHAIN_DIR/$CHAINID_1 --chain-id $CHAINID_1 --keyring-backend test
-$BINARY genesis gentx val2 7000000000stake --home $CHAIN_DIR/$CHAINID_2 --chain-id $CHAINID_2 --keyring-backend test
+$BINARY genesis gentx val1 6500000000stake --home $CHAIN_DIR/$CHAINID_1 --chain-id $CHAINID_1 --keyring-backend test
+$BINARY genesis gentx val2 6500000000stake --home $CHAIN_DIR/$CHAINID_2 --chain-id $CHAINID_2 --keyring-backend test
 $BINARY genesis collect-gentxs --home $CHAIN_DIR/$CHAINID_1 &> /dev/null
 $BINARY genesis collect-gentxs --home $CHAIN_DIR/$CHAINID_2 &> /dev/null
 
@@ -117,10 +117,9 @@ sed -i -e 's/"reward_delay_time": "604800s"/"reward_delay_time": "0s"/g' $CHAIN_
 sed -i -e 's/"reward_delay_time": "604800s"/"reward_delay_time": "0s"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
-sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-2"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-1"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "100"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "100"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "65"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "65"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 
