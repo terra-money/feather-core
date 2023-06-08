@@ -31,6 +31,19 @@ if pgrep -x "$BINARY" >/dev/null; then
     killall $BINARY
 fi
 
+# Ensure go-rly is installed
+if ! [ -x "$(command -v rly)" ]; then
+    echo "rly is required to run this script..."
+    echo "You can download at https://github.com/cosmos/relayer/releases/tag/v2.3.1"
+    exit 1
+fi
+
+# Ensure screen manager with VT100/ANSI terminal emulation is installed
+if ! [ -x "$(command -v screen)" ]; then
+    echo "screen is required to run this script..."
+    echo "You can download at https://git.savannah.gnu.org/cgit/screen.git"
+    exit 1
+fi
 echo "Removing previous data..."
 rm -rf $CHAIN_DIR/$CHAINID_1 &> /dev/null
 rm -rf $CHAIN_DIR/$CHAINID_2 &> /dev/null
@@ -106,8 +119,8 @@ sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_
 sed -i -e 's/"base_denom": "uluna"/"base_denom": "stake"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-2"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"base_chain_id": "phoenix-1"/"base_chain_id": "test-1"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
-sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "25"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "100"/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
+sed -i -e 's/"alliance_bond_height": "1000"/"alliance_bond_height": "100"/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_1/config/genesis.json
 sed -i -e 's/"halt_if_no_channel": false/"halt_if_no_channel": true/g' $CHAIN_DIR/$CHAINID_2/config/genesis.json
 

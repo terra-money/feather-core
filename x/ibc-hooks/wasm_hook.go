@@ -41,6 +41,7 @@ func NewWasmHooks(ibcHooksKeeper *keeper.Keeper, contractKeeper *wasmkeeper.Keep
 }
 
 func (h WasmHooks) ProperlyConfigured() bool {
+	fmt.Printf("h.ContractKeeper != nil && h.ibcHooksKeeper != nil: %v, %v\n", h.ContractKeeper != nil, h.ibcHooksKeeper != nil)
 	return h.ContractKeeper != nil && h.ibcHooksKeeper != nil
 }
 
@@ -228,11 +229,13 @@ func ValidateAndParseMemo(memo string, receiver string) (isWasmRouted bool, cont
 
 func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap *capabilitytypes.Capability, sourcePort string, sourceChannel string, timeoutHeight ibcclienttypes.Height, timeoutTimestamp uint64, data []byte) (sequence uint64, err error) {
 	isIcs20, icsdata := isIcs20Packet(data)
+	fmt.Printf("isIcs20Packet#SendPacketOverride: %v, %s\n", isIcs20, icsdata)
 	if !isIcs20 {
 		return i.channel.SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data) // continue
 	}
 
 	isCallbackRouted, metadata := jsonStringHasKey(icsdata.GetMemo(), types.IBCCallbackKey)
+	fmt.Printf("isCallbackRouted#SendPacketOverride: %v, %s\n", isCallbackRouted, metadata)
 	if !isCallbackRouted {
 		return i.channel.SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data) // continue
 	}
@@ -261,6 +264,7 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	}
 
 	seq, err := i.channel.SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, dataBytes)
+	fmt.Printf("channel#SendPacket: %v, %s\n", seq, err)
 	if err != nil {
 		return 0, err
 	}
@@ -274,7 +278,7 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	if err != nil {
 		return 0, nil
 	}
-
+	fmt.Printf("contract#StorePacketCallback: %s\n", contract)
 	h.ibcHooksKeeper.StorePacketCallback(ctx, sourceChannel, seq, contract)
 	return seq, nil
 }
@@ -291,17 +295,23 @@ func (h WasmHooks) OnAcknowledgementPacketOverride(im IBCMiddleware, ctx sdk.Con
 	}
 
 	contract := h.ibcHooksKeeper.GetPacketCallback(ctx, packet.GetSourceChannel(), packet.GetSequence())
+	fmt.Printf("contract#OnAcknowledgementPacketOverride: %s\n", contract)
+	fmt.Printf("packet.GetSourceChannel()#OnAcknowledgementPacketOverride: %v\n", packet.GetSourceChannel())
+	fmt.Printf("packet.GetSequence()#OnAcknowledgementPacketOverride: %v\n", packet.GetSequence())
+
 	if contract == "" {
 		// No callback configured
 		return nil
 	}
 
 	contractAddr, err := sdk.AccAddressFromBech32(contract)
+	fmt.Printf("err#OnAcknowledgementPacketOverride: %s\n", contractAddr)
 	if err != nil {
 		return errors.Wrap(err, "Ack callback error") // The callback configured is not a bech32. Error out
 	}
 
 	success := "false"
+	fmt.Printf("err#OnAcknowledgementPacketOverride: %s\n", IsAckError(acknowledgement))
 	if !IsAckError(acknowledgement) {
 		success = "true"
 	}

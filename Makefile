@@ -266,10 +266,10 @@ integration-test: clean-integration-test-data install
 	./scripts/tests/relayer/rly-init.sh
 	@echo "Transfer coin from chain test-1 to test-2..."
 	./scripts/tests/feather/transfer.sh
-	@echo "Validate the creation of alliance throught feather..."
-	./scripts/tests/feather/validate-alliance.sh
-#	@echo "Validate the execution of ibc-hooks requests..."
-#	./scripts/tests/ibc-hooks/increment.sh
+	@echo "Validate the execution of ibc-hooks requests..."
+	./scripts/tests/ibc-hooks/increment.sh
+#	@echo "Validate the creation of alliance throught feather..."
+#	./scripts/tests/feather/validate-alliance.sh
 #	@echo "Stopping feather-cored and removing previous data"
 #	-@rm -rf ./.test-data
 #	-@killall feather-cored 2>/dev/null
