@@ -255,7 +255,7 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	} else {
 		icsdata.Memo = stringMetadata
 	}
-	dataBytes, err := json.Marshal(data)
+	dataBytes, err := json.Marshal(icsdata)
 	if err != nil {
 		return 0, errors.Wrap(err, "Send packet with callback error")
 	}
@@ -274,7 +274,6 @@ func (h WasmHooks) SendPacketOverride(i ICS4Middleware, ctx sdk.Context, chanCap
 	if err != nil {
 		return 0, nil
 	}
-
 	h.ibcHooksKeeper.StorePacketCallback(ctx, sourceChannel, seq, contract)
 	return seq, nil
 }
@@ -291,6 +290,7 @@ func (h WasmHooks) OnAcknowledgementPacketOverride(im IBCMiddleware, ctx sdk.Con
 	}
 
 	contract := h.ibcHooksKeeper.GetPacketCallback(ctx, packet.GetSourceChannel(), packet.GetSequence())
+
 	if contract == "" {
 		// No callback configured
 		return nil
