@@ -1,0 +1,40 @@
+{
+    "chain_id": "test-chain",
+    "accounts": [
+        {
+            "name": "alice",
+            "coins": [
+                {
+                    "denom": "token",
+                    "amount": "20000"
+                },
+                {
+                    "denom": "stake",
+                    "amount": "200000000"
+                }
+            ]
+        },
+        {
+            "name": "bob",
+            "coins": [
+                {
+                    "denom": "token",
+                    "amount": "10000"
+                },
+                {
+                    "denom": "stake",
+                    "amount": "100000000"
+                }
+            ]
+        }
+    ],
+    "validators": [
+        {
+            "name": "alice",
+            "bonded": {
+                "denom": "stake",
+                "amount": "100000000"
+            }
+        }
+    ]
+}

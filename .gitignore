@@ -6,4 +6,8 @@ release/
 .DS_Store
 dist
 build
-
+vendor/
+tmp-swagger-gen/
+.test-data/
+coverage.txt
+target/
