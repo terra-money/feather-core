@@ -14,6 +14,7 @@
     "max_validators": 130,
     "max_entries": 7,
     "min_commission_rate": "0",
+    "p2p_port": 26656,
     "lcd_enabled": true,
     "lcd_swagger_enabled": true,
     "lcd_port": 1317,
