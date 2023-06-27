@@ -151,6 +151,7 @@ You must publish your chain with Feather for other Feather users to discover and
 
 ```bash
 # Before publishing your chain, it must be publicly available
+export REPO="https://github.com/<YourName>/<your-repo>"
 git init
 git remove add origin $REPO
 git branch -M main
@@ -164,10 +165,7 @@ feather config keys add $KEY --recover --hd-path="m/44'/330'/0'/0/0"
 # Publish your chain
 # export LAUNCH_TIME=$(date -d '+1 day' +%s) # Linux users
 export LAUNCH_TIME=$(date -v +1d +%s)        # MacOS users
-feather prod chains publish \
-    --key $KEY \
-    --launch-time $LAUNCH_TIME \
-    --repo $REPO
+feather prod chains publish --key $KEY --launch-time $LAUNCH_TIME --repo $REPO
 
 # Note down the printed launch id...
 
