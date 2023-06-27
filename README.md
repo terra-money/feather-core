@@ -153,7 +153,7 @@ You must publish your chain with Feather for other Feather users to discover and
 # Before publishing your chain, it must be publicly available
 export REPO="https://github.com/<YourName>/<your-repo>"
 git init
-git remove add origin $REPO
+git remote add origin $REPO
 git branch -M main
 git push -u origin main
 
