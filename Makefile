@@ -155,6 +155,7 @@ include contrib/devtools/Makefile
 all: install lint test
 
 install: go.sum
+	echo $(BINDIR)
 	go build -o $(BINDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-core
 
 build: go.sum
