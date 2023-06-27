@@ -26,7 +26,7 @@ Initialize configs to start the chain (for local testing):
 # Run in repo root
 feather dev sandbox init
 
-# Then, start the chain
+# Start the chain (your binary name may differ)
 feather-cored start
 ```
 
