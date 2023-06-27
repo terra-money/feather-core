@@ -183,7 +183,7 @@ export LAUNCH_ID='<launch_id>'
 export KEY='<key>'
 
 # list requests to join a chain for a launch id
-feather prod chains show $LAUNCH_ID
+feather prod requests pull $LAUNCH_ID
 
 # approve a validator for a given chain launch
 export REQUEST_ID='<request_id>'
