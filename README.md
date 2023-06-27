@@ -36,12 +36,12 @@ feather-cored start
 
 Configure the `config/localnet/config.json` file if you want to test run your chain before deploying to production with Feather.
 
-```jsonc
+```yaml
 {
-    // Should uniquely identify your blockchain network.
-    // Naming convention: `[-a-zA-Z0-9]{3,47}`
+    # Should uniquely identify your blockchain network.
+    # Naming convention: `[-a-zA-Z0-9]{3,47}`
     "chain_id": "test-chain",
-    // List of genesis accounts, with their bank balances at genesis.
+    # List of genesis accounts, with their bank balances at genesis.
     "accounts": [
         {
             "name": "alice",
@@ -70,7 +70,7 @@ Configure the `config/localnet/config.json` file if you want to test run your ch
             ]
         }
     ],
-    // List of genesis validators, with their staked coins at genesis.
+    # List of genesis validators, with their staked coins at genesis.
     "validators": [
         {
             "name": "alice",
@@ -93,47 +93,47 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
 4. Change parameters from the `x/staking` module when the chain is deployed by Feather.
 5. Configure the LCD/RPC/Prometheus endpoints when the chain is deployed by Feather.
 
-```jsonc
+```yaml
 {
-    // Actual chain id when chain is deployed by Feather.
+    # Actual chain id when chain is deployed by Feather.
     "chain_id": "feather-1",
-    // Name of the chain and chain binary (suffixed with 'd').
+    # Name of the chain and chain binary (suffixed with 'd').
     "app_name": "feather-core",
-    // Metadata registered in the cosmos sdk package.
+    # Metadata registered in the cosmos sdk package.
     "app_binary_name": "feather-cored",
-    // Address prefixes
+    # Address prefixes
     "account_address_prefix": "pfeath",
     "account_pubkey_prefix": "pfeathpub",
     "validator_address_prefix": "pfeathvaloper",
     "validator_pubkey_prefix": "pfeathvaloperpub",
     "consensus_node_address_prefix": "pfeathvalcons",
     "consensus_node_pubkey_prefix": "pfeathvalconspub",
-    // Staking bond denominator (i.e. coin currency used for staking)
+    # Staking bond denominator (i.e. coin currency used for staking)
     "bond_denom": "stake",
-    // Amount of bond denom for staking available at genesis.
-    // This is split among approved genesis validators by Feather.
+    # Amount of bond denom for staking available at genesis.
+    # This is split among approved genesis validators by Feather.
     "bond_supply": "1000000000",
-    // Cooldown time after unbonding from a validator before an account can stake again.
+    # Cooldown time after unbonding from a validator before an account can stake again.
     "unbonding_time": "1814400s",
-    // Max number of validators the chain supports.
+    # Max number of validators the chain supports.
     "max_validators": 130,
     "max_entries": 7,
     "min_commission_rate": "0",
-    // Whether to start the LCD server with the chain.
+    # Whether to start the LCD server with the chain.
     "lcd_enabled": true,
-    // Exposes a swagger page documenting exposed API endpoints at IP:<lcd_port>.
+    # Exposes a swagger page documenting exposed API endpoints at IP:<lcd_port>.
     "lcd_swagger_enabled": true,
-    // Configurable LCD server port.
+    # Configurable LCD server port.
     "lcd_port": 1317,
-    // Enable this if querying the blockchain from a CORS-enabled app, like web browsers.
+    # Enable this if querying the blockchain from a CORS-enabled app, like web browsers.
     "lcd_enable_unsafe_cors": false,
-    // Whether to start the RPC server with the chain.
+    # Whether to start the RPC server with the chain.
     "rpc_enabled": true,
-    // Configurable RPC server port.
+    # Configurable RPC server port.
     "rpc_port": 26657,
-    // Whether to enable Prometheus metrics.
+    # Whether to enable Prometheus metrics.
     "prometheus_enabled": true,
-    // Configurable Prometheus port.
+    # Configurable Prometheus port.
     "prometheus_port": 26660
 }
 ```
