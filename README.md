@@ -145,6 +145,37 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
 }
 ```
 
+## Publishing
+
+You must publish your chain with Feather for other Feather users to discover and deploy validators for your chain.
+
+```bash
+# Before publishing your chain, it must be publicly available
+git init
+git remove add origin $REPO
+git branch -M main
+git push -u origin main
+
+# Import your existing terra account using your seed phrase (must have LUNA in testnet)
+# Request LUNA from testnet https://faucet.terra.money if needed.
+export KEY='mykey'
+feather config keys add $KEY --recover --hd-path="m/44'/330'/0'/0/0"
+
+# Publish your chain
+# export LAUNCH_TIME=$(date -d '+1 day' +%s) # Linux users
+export LAUNCH_TIME=$(date -v +1d +%s)        # MacOS users
+feather prod chains publish \
+    --key $KEY \
+    --launch-time $LAUNCH_TIME \
+    --repo $REPO
+
+# Note down the printed launch id...
+
+# Query your chain
+export LAUNCH_ID="<launch_id>"
+feather prod chains show $LAUNCH_ID
+```
+
 ## Interface
 
 Feather Core **must** adhere to this interface to work correctly with Feather. **Feather will not launch your chain if it fails the interface verification.**
