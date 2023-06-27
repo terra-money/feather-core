@@ -1,6 +1,13 @@
 # Feather Core
 
-**Feather Core** is a blockchain built using Cosmos SDK and CometBFT and created with the Feather CLI. It is mean to be used together with **Feather CLI**.
+**Feather Core** is a template blockchain built using Cosmos SDK and CometBFT and created with the Feather CLI. It is meant to be used together with **Feather 🪶**.
+
+## Features
+
+* All default Cosmos SDK modules
+* The Cosmos [IBC](https://ibc.cosmos.network/) module
+* The Osmosis [Token Factory](https://github.com/CosmWasm/token-factory) module
+* The Terra [Alliance](https://alliance.terra.money/) module
 
 ## Installation
 
@@ -137,3 +144,13 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
     "prometheus_port": 26660
 }
 ```
+
+## Interface
+
+Feather Core **must** adhere to this interface to work correctly with Feather. **Feather will not launch your chain if it fails the interface verification.**
+
+* Do not change the root `Makefile`. Use a non-standard makefile name with the `-f` or `--file` option if you need one for your own needs.
+* Do not change the location of the `main` package (must be in `cmd/<app_name>`)
+* Do not change the **location** of the `simulation_test.go` file. (must be `app/simulation_test.go`)
+* Do not change the **contents** of the `simulation_test.go` file.
+* Do not change the location of the files under the root `config` directory.
