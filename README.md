@@ -36,7 +36,7 @@ feather-cored start
 
 Configure the `config/localnet/config.json` file if you want to test run your chain before deploying to production with Feather.
 
-```json
+```jsonc
 {
     // Should uniquely identify your blockchain network.
     // Naming convention: `[-a-zA-Z0-9]{3,47}`
@@ -93,7 +93,7 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
 4. Change parameters from the `x/staking` module when the chain is deployed by Feather.
 5. Configure the LCD/RPC/Prometheus endpoints when the chain is deployed by Feather.
 
-```json
+```jsonc
 {
     // Actual chain id when chain is deployed by Feather.
     "chain_id": "feather-1",
