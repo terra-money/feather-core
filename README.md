@@ -174,6 +174,22 @@ export LAUNCH_ID="<launch_id>"
 feather prod chains show $LAUNCH_ID
 ```
 
+## Approving join requests
+
+Feather validators may submit a [gentx](https://docs.cosmos.network/v0.46/run-node/run-node.html) request to join your chain as a validator. Feather will only include approved validators in the final deployed chain.
+
+```bash
+export LAUNCH_ID='<launch_id>'
+export KEY='<key>'
+
+# list requests to join a chain for a launch id
+feather prod chains show $LAUNCH_ID
+
+# approve a validator for a given chain launch
+export REQUEST_ID='<request_id>'
+feather prod requests approve --key $KEY --launch-id $LAUNCH_ID --request-id $REQUEST_ID
+```
+
 ## Interface
 
 Feather Core **must** adhere to this interface to work correctly with Feather. **Feather will not launch your chain if it fails the interface verification.**
