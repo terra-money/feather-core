@@ -11,6 +11,13 @@
 
 ## Installation
 
+Install dependencies:
+
+* `go`
+* `jq`
+* `make`
+* `gcc`
+
 Build and install the chain binary:
 
 ```bash
