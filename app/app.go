@@ -1123,3 +1123,14 @@ func (app *App) SimulationManager() *module.SimulationManager {
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return ModuleBasics.DefaultGenesis(app.cdc)
 }
+
+// UnsafeGetKey returns the KVStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) UnsafeGetKey(storeKey string) *storetypes.KVStoreKey {
+	kvStoreKey, ok := app.keys[storeKey]
+	if !ok {
+		return nil
+	}
+	return kvStoreKey
+}

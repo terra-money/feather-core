@@ -1,14 +1,20 @@
 #!/usr/bin/make -f
 
-SIMAPP = ./app
+ifeq ($(OS),Windows_NT)
+  $(error "Windows is not supported")
+endif
+
+FEATHER_CORE_VERSION = v0.1.0
+
+GO := $(shell command -v go 2> /dev/null)
+GOBIN = $(GOPATH)/bin
+GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
+
 LEDGER_ENABLED ?= true
-BINDIR ?= $(GOPATH)/bin
 BUILDDIR ?= $(CURDIR)/build
 DOCKER := $(shell which docker)
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
-GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 JQ := $(shell which jq)
 HTTPS_GIT := https://github.com/terra-money/feather-core.git
 
@@ -126,7 +132,7 @@ build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(FEATH_CONFIG_APP_NAME) \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=$(FEATH_CONFIG_APP_BINARY_NAME) \
-		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+		  -X github.com/cosmos/cosmos-sdk/version.Version=$(FEATHER_CORE_VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
 		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
 		  -X github.com/terra-money/feather-core/app.AppName=$(FEATH_CONFIG_APP_NAME) \
@@ -155,7 +161,7 @@ include contrib/devtools/Makefile
 all: install lint test
 
 install: go.sum
-	go build -o $(BINDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-core
+	go build -o $(GOBIN)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-core
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
@@ -171,44 +177,17 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/contract_tests ./cmd/contract_tests
 endif
 
-build-reproducible: build-reproducible-amd64 build-reproducible-arm64
-
-build-reproducible-amd64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-core-builder || true
-	$(DOCKER) buildx use feather-core-builder
-	$(DOCKER) buildx build \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GIT_VERSION=$(VERSION) \
-		--build-arg GIT_COMMIT=$(COMMIT) \
-		--build-arg RUNNER_IMAGE=alpine:3.16 \
-		--platform linux/amd64 \
-		-t feather-core:local-amd64 \
-		--load \
-		-f Dockerfile .
-	$(DOCKER) rm -f feather-core-binary || true
-	$(DOCKER) create -ti --name feather-core-binary feather-core:local-amd64
-	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-amd64
-	$(DOCKER) rm -f feather-core-binary
-
-build-reproducible-arm64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-core-builder  || true
-	$(DOCKER) buildx use feather-core-builder 
-	$(DOCKER) buildx build \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GIT_VERSION=$(VERSION) \
-		--build-arg GIT_COMMIT=$(COMMIT) \
-		--build-arg RUNNER_IMAGE=alpine:3.16 \
-		--platform linux/arm64 \
-		-t feather-core:local-arm64 \
-		--load \
-		-f Dockerfile .
-	$(DOCKER) rm -f feather-core-binary || true
-	$(DOCKER) create -ti --name feather-core-binary feather-core:local-arm64
-	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-arm64
-	$(DOCKER) rm -f feather-core-binary
-
 ########################################
 ### Tools & dependencies
+########################################
+
+TOOLS_DESTDIR = $(GOBIN)
+RUNSIM = $(TOOLS_DESTDIR)/runsim
+
+# runsim is required to run simulation tests
+runsim:
+	@echo "Installing runsim..."
+	@go install github.com/cosmos/tools/cmd/runsim@v1.0.0
 
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
@@ -233,31 +212,50 @@ distclean: clean
 ###                                Testing                                  ###
 ###############################################################################
 
+SIM_PKG = ./app
+
 test: test-unit
-test-all: test-race test-cover
+
+# For feather to use to test feather-cored correctness. E.g. make --jobs=4 test-all
+test-all: test-unit test-race simulate
 
 test-unit:
-	@VERSION=$(VERSION) go test -mod=readonly -tags='ledger test_ledger_mock' ./...
+	@echo "Running unit tests..."
+	@go test -mod=readonly ./...
 
 test-race:
-	@VERSION=$(VERSION) go test -mod=readonly -race -tags='ledger test_ledger_mock' ./...
+	@echo "Running tests with race condition detection..."
+	@go test -mod=readonly -race ./...
 
+# Generates a test coverage report, which can be used with the `go tool cover` command to view test coverage.
 test-cover:
-	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.txt -covermode=atomic -tags='ledger test_ledger_mock' ./...
+	@echo "Generating coverage profile 'coverage.out'..."
+	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.out -covermode=atomic ./...
+	@echo "Coverage profile generated. Open in a web browser with: go tool cover -html=coverage.out"
 
-benchmark:
+test-benchmark:
 	@go test -mod=readonly -bench=. ./...
 
-test-sim-import-export: runsim
-	@echo "Running application import/export simulation. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppImportExport
+# Convenience target for running all simulation tests.
+simulate: simulate-nondeterminism simulate-full-app simulate-app-import-export
 
-test-sim-multi-seed-short: runsim
-	@echo "Running short multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
-	
-simulate:
-	@go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1
+# Runs the simulation, checking invariants every operation.
+simulate-full-app:
+	@echo "Running full application simulation..."
+	@$(GO) test -mod=readonly -run=TestFullAppSimulation ./app -Enabled=true \
+		-NumBlocks=100 -BlockSize=200 -Commit=true -v -timeout 24h
+
+# Runs the same simulation multiple times, verifying that the resulting app hash is the same each time.
+simulate-nondeterminism:
+	@echo "Running non-determinism simulation..."
+	@$(GO) test -mod=readonly $(SIM_PKG) -run TestAppStateDeterminism -Enabled=true \
+		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+
+# Exports and imports genesis state, verifying that no data is lost in the process.
+simulate-app-import-export:
+	@echo "Running genesis export/import simulation..."
+	@$(GO) test -v -run=TestAppImportExport ./app -Enabled=true \
+		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
 
 integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
