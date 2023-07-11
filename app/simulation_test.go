@@ -30,9 +30,13 @@ func init() {
 	simcli.GetSimulatorFlags()
 }
 
-// Running as a go test:
-//
-// go test -v -run=TestAppStateDeterminism ./app -Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+// Run with 3 randomly generated seeds, 5 times each:
+// 
+// 	go test -v -run=TestAppStateDeterminism ./app -Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+// 
+// Run with one seed override (i.e. any seed that isn't simcli.DefaultSeedValue), 5 times:
+// 
+// 	go test -v -run=TestAppStateDeterminism ./app -Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h -Seed=100
 func TestAppStateDeterminism(t *testing.T) {
 	if !simcli.FlagEnabledValue {
 		t.Skip("skipping application simulation")
@@ -49,10 +53,11 @@ func TestAppStateDeterminism(t *testing.T) {
 	numTimesToRunPerSeed := 5
 	appHashList := make([]json.RawMessage, numTimesToRunPerSeed)
 
-	for i := 0; i < numSeeds; i++ {
-		config.Seed = rand.Int63()
+	simulateWithSeedNTimes := func(seed int64, times int) {
+		cfg := config
+		cfg.Seed = seed
 
-		for j := 0; j < numTimesToRunPerSeed; j++ {
+		for i := 0; i < times; i++ {
 			var logger log.Logger
 			if simcli.FlagVerboseValue {
 				logger = log.TestingLogger()
@@ -77,8 +82,8 @@ func TestAppStateDeterminism(t *testing.T) {
 			require.Equal(t, AppName, app.Name())
 
 			fmt.Printf(
-				"running non-determinism simulation; seed %d: %d/%d, attempt: %d/%d\n",
-				config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
+				"running non-determinism simulation; seed %d: attempt: %d/%d\n",
+				seed, i+1, numTimesToRunPerSeed,
 			)
 
 			// run randomized simulation
@@ -88,26 +93,40 @@ func TestAppStateDeterminism(t *testing.T) {
 				app.BaseApp,
 				simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
 				simtypes.RandomAccounts,
-				simtestutil.SimulationOperations(app, app.AppCodec(), config),
+				simtestutil.SimulationOperations(app, app.AppCodec(), cfg),
 				app.BankKeeper.GetBlockedAddresses(),
-				config,
+				cfg,
 				app.AppCodec(),
 			)
 			require.NoError(t, err)
 
-			if config.Commit {
+			if cfg.Commit {
 				simtestutil.PrintStats(db)
 			}
 
 			appHash := app.LastCommitID().Hash
-			appHashList[j] = appHash
+			appHashList[i] = appHash
 
-			if j != 0 {
+			if i != 0 {
 				require.Equal(
-					t, string(appHashList[0]), string(appHashList[j]),
-					"non-determinism in seed %d: %d/%d, attempt: %d/%d\n", config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
+					t, string(appHashList[0]), string(appHashList[i]),
+					"non-determinism in seed %d: attempt: %d/%d\n", cfg.Seed, i+1, numTimesToRunPerSeed,
 				)
 			}
 		}
+	}
+
+	switch config.Seed {
+	case simcli.DefaultSeedValue:
+		// no seed override, run simulation with multiple seeds
+		for i := 0; i < numSeeds; i++ {
+			seed := rand.Int63()
+			fmt.Printf("running non-determinism simulation; seed %d: %d/%d\n", seed, i+1, numSeeds)
+			simulateWithSeedNTimes(seed, numTimesToRunPerSeed)
+		}
+	default:
+		// seed override provided - user may be debugging; run once
+		fmt.Printf("running non-determinism simulation; seed %d\n", config.Seed)
+		simulateWithSeedNTimes(config.Seed, numTimesToRunPerSeed)
 	}
 }
