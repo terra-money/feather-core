@@ -654,6 +654,7 @@ func New(
 	// 2. 'auth'
 	// 3. 'ibc channel'
 	// 4. 'ibc port'
+	app.keys[ibcfeetypes.StoreKey] = storetypes.NewKVStoreKey(ibcfeetypes.StoreKey)
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.cdc,
 		app.keys[ibcfeetypes.StoreKey],
