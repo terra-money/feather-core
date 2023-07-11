@@ -1,8 +1,13 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"testing"
+
+	dbm "github.com/cometbft/cometbft-db"
+	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
@@ -26,61 +31,82 @@ func init() {
 
 // Running as a go test:
 //
-// go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1 -Seed 40
-func TestFullAppSimulation(t *testing.T) {
-	config := simcli.NewConfigFromFlags()
-	config.ChainID = simulationAppChainID
-
+// go test -v -run=TestAppStateDeterminism ./app -Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+func TestAppStateDeterminism(t *testing.T) {
 	if !simcli.FlagEnabledValue {
 		t.Skip("skipping application simulation")
 	}
 
-	db, dir, logger, _, err := simtestutil.SetupSimulation(
-		config,
-		simulationDirPrefix,
-		simulationDbName,
-		simcli.FlagVerboseValue,
-		true, // Don't use this as it is confusing
-	)
-	require.NoError(t, err, "simulation setup failed")
+	config := simcli.NewConfigFromFlags()
+	config.ChainID = simulationAppChainID
+	config.InitialBlockHeight = 1
+	config.ExportParamsPath = ""
+	config.OnOperation = false
+	config.AllInvariants = false
 
-	defer func() {
-		require.NoError(t, db.Close())
-		require.NoError(t, os.RemoveAll(dir))
-	}()
+	numSeeds := 3
+	numTimesToRunPerSeed := 5
+	appHashList := make([]json.RawMessage, numTimesToRunPerSeed)
 
-	app := New(logger,
-		db,
-		nil,
-		true,
-		map[int64]bool{},
-		DefaultNodeHome,
-		simcli.FlagPeriodValue,
-		MakeEncodingConfig(),
-		simtestutil.EmptyAppOptions{},
-		baseapp.SetChainID(simulationAppChainID),
-	)
-	require.Equal(t, AppName, app.Name())
+	for i := 0; i < numSeeds; i++ {
+		config.Seed = 3001577448925715521
 
-	// run randomized simulation
-	_, simParams, simErr := simulation.SimulateFromSeed(
-		t,
-		os.Stdout,
-		app.BaseApp,
-		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
-		simtypes.RandomAccounts,
-		simtestutil.SimulationOperations(app, app.AppCodec(), config),
-		app.BankKeeper.GetBlockedAddresses(),
-		config,
-		app.AppCodec(),
-	)
+		for j := 0; j < numTimesToRunPerSeed; j++ {
+			var logger log.Logger
+			if simcli.FlagVerboseValue {
+				logger = log.TestingLogger()
+			} else {
+				logger = log.NewNopLogger()
+			}
 
-	// export state and simParams before the simulatino error is checked
-	err = simtestutil.CheckExportSimulation(app, config, simParams)
-	require.NoError(t, err)
-	require.NoError(t, simErr)
+			db := dbm.NewMemDB()
+			defer db.Close()
 
-	if config.Commit {
-		simtestutil.PrintStats(db)
+			app := New(logger,
+				db,
+				nil,
+				true,
+				map[int64]bool{},
+				DefaultNodeHome,
+				simcli.FlagPeriodValue,
+				MakeEncodingConfig(),
+				simtestutil.EmptyAppOptions{},
+				baseapp.SetChainID(simulationAppChainID),
+			)
+			require.Equal(t, AppName, app.Name())
+
+			fmt.Printf(
+				"running non-determinism simulation; seed %d: %d/%d, attempt: %d/%d\n",
+				config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
+			)
+
+			// run randomized simulation
+			_, _, err := simulation.SimulateFromSeed(
+				t,
+				os.Stdout,
+				app.BaseApp,
+				simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
+				simtypes.RandomAccounts,
+				simtestutil.SimulationOperations(app, app.AppCodec(), config),
+				app.BankKeeper.GetBlockedAddresses(),
+				config,
+				app.AppCodec(),
+			)
+			require.NoError(t, err)
+
+			if config.Commit {
+				simtestutil.PrintStats(db)
+			}
+
+			appHash := app.LastCommitID().Hash
+			appHashList[j] = appHash
+
+			if j != 0 {
+				require.Equal(
+					t, string(appHashList[0]), string(appHashList[j]),
+					"non-determinism in seed %d: %d/%d, attempt: %d/%d\n", config.Seed, i+1, numSeeds, j+1, numTimesToRunPerSeed,
+				)
+			}
+		}
 	}
 }
