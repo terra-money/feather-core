@@ -654,6 +654,7 @@ func New(
 	// 2. 'auth'
 	// 3. 'ibc channel'
 	// 4. 'ibc port'
+	app.keys[ibcfeetypes.StoreKey] = storetypes.NewKVStoreKey(ibcfeetypes.StoreKey)
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.cdc,
 		app.keys[ibcfeetypes.StoreKey],
@@ -1121,4 +1122,15 @@ func (app *App) SimulationManager() *module.SimulationManager {
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return ModuleBasics.DefaultGenesis(app.cdc)
+}
+
+// UnsafeGetKey returns the KVStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) UnsafeGetKey(storeKey string) *storetypes.KVStoreKey {
+	kvStoreKey, ok := app.keys[storeKey]
+	if !ok {
+		return nil
+	}
+	return kvStoreKey
 }
