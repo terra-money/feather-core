@@ -181,14 +181,6 @@ endif
 ### Tools & dependencies
 ########################################
 
-TOOLS_DESTDIR = $(GOBIN)
-RUNSIM = $(TOOLS_DESTDIR)/runsim
-
-# runsim is required to run simulation tests
-runsim:
-	@echo "Installing runsim..."
-	@go install github.com/cosmos/tools/cmd/runsim@v1.0.0
-
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
 	@go mod download
