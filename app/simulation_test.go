@@ -42,6 +42,11 @@ const (
 	simulationAppChainID = "simulation-app"
 )
 
+var (
+	// hacky workaround to restart a test with another seed
+	simFailedDueToEmptyValSet = false
+)
+
 func init() {
 	simcli.GetSimulatorFlags()
 }
@@ -50,6 +55,20 @@ func init() {
 //
 //	go test -run=TestFullAppSimulation ./app -Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -v -timeout 24h
 func TestFullAppSimulation(t *testing.T) {
+	// this is a workaround for https://github.com/CosmWasm/wasmd/issues/1437
+	// if simulation generates an empty validator set, restart the simulation with a new seed
+	defer func() {
+		if r := recover(); r != nil {
+			err := fmt.Sprintf("%v", r)
+			if !strings.Contains(err, "validator set is empty after InitGenesis") {
+				panic(r)
+			}
+			t.Log("Simulation generated empty validator set - restarting simulation")
+			simFailedDueToEmptyValSet = true
+			TestFullAppSimulation(t)
+		}
+	}()
+
 	if !simcli.FlagEnabledValue {
 		t.Skip("skipping full application simulation")
 	}
@@ -64,6 +83,12 @@ func TestFullAppSimulation(t *testing.T) {
 	// if no seed is provided, generate a random one
 	if config.Seed == simcli.DefaultSeedValue {
 		config.Seed = rand.Int63()
+	}
+
+	// if simulation failed due to empty validator set, restart with new seed
+	if simFailedDueToEmptyValSet {
+		config.Seed = rand.Int63()
+		simFailedDueToEmptyValSet = false
 	}
 
 	// if no period is provided, default to 1
