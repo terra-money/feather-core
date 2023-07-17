@@ -167,7 +167,7 @@ build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-core ./cmd/feather-core
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) ./cmd/feather-core
 endif
 
 build-contract-tests-hooks:
