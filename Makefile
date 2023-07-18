@@ -141,7 +141,7 @@ ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(FEATH_CONFIG_APP_NAME) 
 		  -X github.com/terra-money/feather-core/app.ValidatorAddressPrefix=$(FEATH_CONFIG_VALIDATOR_ADDRESS_PREFIX) \
 		  -X github.com/terra-money/feather-core/app.ValidatorPubKeyPrefix=$(FEATH_CONFIG_VALIDATOR_PUBKEY_PREFIX) \
 		  -X github.com/terra-money/feather-core/app.ConsensusNodeAddressPrefix=$(FEATH_CONFIG_CONS_NODE_ADDR_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.ConsensusNodePubKeyPrefix=$(FEATH_CONFIG_ACC_PUBKEY_PREFIX) \
+		  -X github.com/terra-money/feather-core/app.ConsensusNodePubKeyPrefix=$(FEATH_CONFIG_CONS_NODE_PUBKEY_PREFIX) \
 		  -X github.com/terra-money/feather-core/app.BondDenom=$(FEATH_CONFIG_BOND_DENOM)
 
 ifeq ($(WITH_CLEVELDB),yes)
