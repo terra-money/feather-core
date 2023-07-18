@@ -9,7 +9,7 @@
                     "amount": "20000"
                 },
                 {
-                    "denom": "stake",
+                    "denom": "transformablestake",
                     "amount": "200000000"
                 }
             ]
@@ -22,7 +22,7 @@
                     "amount": "10000"
                 },
                 {
-                    "denom": "stake",
+                    "denom": "transformablestake",
                     "amount": "100000000"
                 }
             ]
@@ -32,7 +32,7 @@
         {
             "name": "alice",
             "bonded": {
-                "denom": "stake",
+                "denom": "transformablestake",
                 "amount": "100000000"
             }
         }

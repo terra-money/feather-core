@@ -165,13 +165,13 @@ import (
 // DO NOT change the names of these variables!
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
-	AccountAddressPrefix       = "feath"
-	AccountPubKeyPrefix        = "feathpub"
-	ValidatorAddressPrefix     = "feathvaloper"
-	ValidatorPubKeyPrefix      = "feathvaloperpub"
-	ConsensusNodeAddressPrefix = "feathvalcons"
-	ConsensusNodePubKeyPrefix  = "feathvalconspub"
-	BondDenom                  = "featherstake"
+	AccountAddressPrefix       = "transformableprefix"
+	AccountPubKeyPrefix        = "transformableprefixpub"
+	ValidatorAddressPrefix     = "transformableprefixvaloper"
+	ValidatorPubKeyPrefix      = "transformableprefixvaloperpub"
+	ConsensusNodeAddressPrefix = "transformableprefixvalcons"
+	ConsensusNodePubKeyPrefix  = "transformableprefixvalconspub"
+	BondDenom                  = "transformablestake"
 	AppName                    = "feather-core"
 )
 

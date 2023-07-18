@@ -47,14 +47,15 @@ transformations:
 
   - name: account prefix
     type: replace
-    pattern: pfeath
+    # replaces account prefixes in config.json
+    pattern: transformableprefix
     replacement: "{{ .account_prefix }}"
     files:
       - "config/mainnet/config.json"
 
   - name: bond denom
     type: replace
-    pattern: stake
+    pattern: transformablestake
     replacement: "{{ .bond_denom }}"
     files:
       - "config/localnet/config.json"
