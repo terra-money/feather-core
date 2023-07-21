@@ -113,6 +113,9 @@ import (
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 
+	ibchooks "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7"
+	ibchookskeeper "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/keeper"
+	ibchookstypes "github.com/cosmos/ibc-apps/modules/ibc-hooks/v7/types"
 	ica "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts"
 	icacontrollerkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/keeper"
 	icacontrollertypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/controller/types"
@@ -132,9 +135,6 @@ import (
 	ibcporttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
-	ibchooks "github.com/terra-money/feather-core/x/ibc-hooks"
-	ibchookskeeper "github.com/terra-money/feather-core/x/ibc-hooks/keeper"
-	ibchookstypes "github.com/terra-money/feather-core/x/ibc-hooks/types"
 
 	// Token Factory for sdk 47
 	"github.com/terra-money/feather-core/x/tokenfactory"
@@ -165,13 +165,13 @@ import (
 // DO NOT change the names of these variables!
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
-	AccountAddressPrefix       = "feath"
-	AccountPubKeyPrefix        = "feathpub"
-	ValidatorAddressPrefix     = "feathvaloper"
-	ValidatorPubKeyPrefix      = "feathvaloperpub"
-	ConsensusNodeAddressPrefix = "feathvalcons"
-	ConsensusNodePubKeyPrefix  = "feathvalconspub"
-	BondDenom                  = "featherstake"
+	AccountAddressPrefix       = "pfeath"
+	AccountPubKeyPrefix        = "pfeathpub"
+	ValidatorAddressPrefix     = "pfeathvaloper"
+	ValidatorPubKeyPrefix      = "pfeathvaloperpub"
+	ConsensusNodeAddressPrefix = "pfeathvalcons"
+	ConsensusNodePubKeyPrefix  = "pfeathvalconspub"
+	BondDenom                  = "stake"
 	AppName                    = "feather-core"
 )
 
@@ -233,6 +233,22 @@ var (
 		alliance.AppModuleBasic{},
 		feather.AppModuleBasic{},
 	)
+
+	// module account permissions
+	maccPerms = map[string][]string{
+		authtypes.FeeCollectorName:     nil,
+		distrtypes.ModuleName:          nil,
+		icatypes.ModuleName:            nil,
+		minttypes.ModuleName:           {authtypes.Minter},
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
+		govtypes.ModuleName:            {authtypes.Burner},
+		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		tokenfactorytypes.ModuleName:   {authtypes.Minter, authtypes.Burner},
+		alliancetypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
+		alliancetypes.RewardsPoolName:  nil,
+		nft.ModuleName:                 nil,
+	}
 )
 
 var (
@@ -352,14 +368,10 @@ func New(
 		cdc,
 		app.keys[authtypes.StoreKey],
 		authtypes.ProtoBaseAccount,
-		make(map[string][]string), // This will be populated by each module later
+		maccPerms,
 		AccountAddressPrefix,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	defer func() { // TODO: Does deferring this even work?
-		app.AuthKeeper.GetModulePermissions()[authtypes.FeeCollectorName] = authtypes.NewPermissionsForAddress(authtypes.FeeCollectorName, nil) // This implicitly creates a module account
-		app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(authtypes.FeeCollectorName).String()] = true
-	}()
 	modules = append(modules, auth.NewAppModule(cdc, app.AuthKeeper, nil, nil))
 	simModules = append(simModules, auth.NewAppModule(cdc, app.AuthKeeper, authsim.RandomGenesisAccounts, nil))
 
@@ -454,10 +466,6 @@ func New(
 	// 'staking' module - depends on
 	// 1. 'auth'
 	// 2. 'bank'
-	app.AuthKeeper.GetModulePermissions()[stakingtypes.BondedPoolName] = authtypes.NewPermissionsForAddress(stakingtypes.BondedPoolName, []string{authtypes.Burner, authtypes.Staking})
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String()] = true
-	app.AuthKeeper.GetModulePermissions()[stakingtypes.NotBondedPoolName] = authtypes.NewPermissionsForAddress(stakingtypes.NotBondedPoolName, []string{authtypes.Burner, authtypes.Staking})
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(stakingtypes.NotBondedPoolName).String()] = true
 	app.keys[stakingtypes.StoreKey] = storetypes.NewKVStoreKey(stakingtypes.StoreKey)
 	app.StakingKeeper = stakingkeeper.NewKeeper(
 		cdc,
@@ -475,8 +483,6 @@ func New(
 	// 1. 'staking'
 	// 2. 'auth'
 	// 3. 'bank'
-	app.AuthKeeper.GetModulePermissions()[minttypes.ModuleName] = authtypes.NewPermissionsForAddress(minttypes.ModuleName, []string{authtypes.Minter})
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(minttypes.ModuleName).String()] = true
 	app.keys[minttypes.StoreKey] = storetypes.NewKVStoreKey(minttypes.StoreKey)
 	app.MintKeeper = mintkeeper.NewKeeper(
 		cdc,
@@ -493,8 +499,6 @@ func New(
 	// 'nft' module - depends on
 	// 1. 'auth'
 	// 2. 'bank'
-	app.AuthKeeper.GetModulePermissions()[nft.ModuleName] = authtypes.NewPermissionsForAddress(nft.ModuleName, nil)
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(nft.ModuleName).String()] = true
 	app.keys[nftkeeper.StoreKey] = storetypes.NewKVStoreKey(nftkeeper.StoreKey)
 	app.NftKeeper = nftkeeper.NewKeeper(
 		app.keys[nftkeeper.StoreKey],
@@ -535,7 +539,6 @@ func New(
 	// 1. 'auth'
 	// 2. 'bank'
 	// 3. 'staking'
-	app.AuthKeeper.GetModulePermissions()[govtypes.ModuleName] = authtypes.NewPermissionsForAddress(govtypes.ModuleName, []string{authtypes.Burner})
 	app.keys[govtypes.StoreKey] = storetypes.NewKVStoreKey(govtypes.StoreKey)
 	app.GovKeeper = *govkeeper.NewKeeper(
 		cdc,
@@ -559,8 +562,6 @@ func New(
 	// 2. 'bank'
 	// 3. 'staking'
 	// 4. 'gov'
-	app.AuthKeeper.GetModulePermissions()[distrtypes.ModuleName] = authtypes.NewPermissionsForAddress(distrtypes.ModuleName, nil)
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(distrtypes.ModuleName).String()] = true
 	app.keys[distrtypes.StoreKey] = storetypes.NewKVStoreKey(distrtypes.StoreKey)
 	app.DistrKeeper = distrkeeper.NewKeeper(
 		cdc,
@@ -654,6 +655,7 @@ func New(
 	// 2. 'auth'
 	// 3. 'ibc channel'
 	// 4. 'ibc port'
+	app.keys[ibcfeetypes.StoreKey] = storetypes.NewKVStoreKey(ibcfeetypes.StoreKey)
 	app.IBCFeeKeeper = ibcfeekeeper.NewKeeper(
 		app.cdc,
 		app.keys[ibcfeetypes.StoreKey],
@@ -664,7 +666,6 @@ func New(
 		app.BankKeeper,
 	)
 	app.keys[ibcporttypes.StoreKey] = storetypes.NewKVStoreKey(ibcporttypes.StoreKey)
-	app.AuthKeeper.GetModulePermissions()[ibctransfertypes.ModuleName] = authtypes.NewPermissionsForAddress(ibcfeetypes.ModuleName, nil)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 	icaHostStack := ibcfee.NewIBCMiddleware(icaHostIBCModule, app.IBCFeeKeeper)
 
@@ -692,8 +693,6 @@ func New(
 	// 2. 'auth'
 	// 3. 'bank'
 	// 4. 'capability'
-	app.AuthKeeper.GetModulePermissions()[ibctransfertypes.ModuleName] = authtypes.NewPermissionsForAddress(ibctransfertypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(ibctransfertypes.ModuleName).String()] = true
 	app.keys[ibctransfertypes.StoreKey] = storetypes.NewKVStoreKey(ibctransfertypes.StoreKey)
 	app.TransferKeeper = ibctransferkeeper.NewKeeper(
 		cdc,
@@ -728,8 +727,6 @@ func New(
 	simModules = append(simModules, ibctransfer.NewAppModule(app.TransferKeeper))
 
 	// 'ica'
-	app.AuthKeeper.GetModulePermissions()[icatypes.ModuleName] = authtypes.NewPermissionsForAddress(icatypes.ModuleName, nil)
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(icatypes.ModuleName).String()] = true
 
 	// 'icacontroller' module - depends on
 	// 1. 'ibc'
@@ -776,8 +773,6 @@ func New(
 	// 6. 'capability'
 	// 7. 'ibc'
 	// 8. 'ibctransfer'
-	app.AuthKeeper.GetModulePermissions()[wasmtypes.ModuleName] = authtypes.NewPermissionsForAddress(wasmtypes.ModuleName, []string{authtypes.Burner})
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(wasmtypes.ModuleName).String()] = true
 	app.keys[wasmtypes.StoreKey] = storetypes.NewKVStoreKey(wasmtypes.StoreKey)
 	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 	if err != nil {
@@ -790,6 +785,7 @@ func New(
 		app.BankKeeper,
 		app.StakingKeeper,
 		distrkeeper.NewQuerier(app.DistrKeeper),
+		app.IBCFeeKeeper,
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.CapabilityKeeper.ScopeToModule(wasm.ModuleName),
@@ -817,10 +813,6 @@ func New(
 	// 4. 'distribution'
 	// 5. 'gov'
 	app.BankKeeper.RegisterKeepers(app.AllianceKeeper, app.StakingKeeper)
-	app.AuthKeeper.GetModulePermissions()[tokenfactorytypes.ModuleName] = authtypes.NewPermissionsForAddress(tokenfactorytypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
-	app.AuthKeeper.GetModulePermissions()[alliancetypes.ModuleName] = authtypes.NewPermissionsForAddress(alliancetypes.ModuleName, []string{authtypes.Minter, authtypes.Burner})
-	app.AuthKeeper.GetModulePermissions()[alliancetypes.RewardsPoolName] = authtypes.NewPermissionsForAddress(alliancetypes.RewardsPoolName, nil)
-	app.BankKeeper.GetBlockedAddresses()[authtypes.NewModuleAddress(alliancetypes.RewardsPoolName).String()] = true
 	app.keys[alliancetypes.StoreKey] = storetypes.NewKVStoreKey(alliancetypes.StoreKey)
 	app.AllianceKeeper = alliancekeeper.NewKeeper(
 		cdc,
@@ -830,6 +822,7 @@ func New(
 		app.BankKeeper,
 		app.StakingKeeper,
 		app.DistrKeeper,
+		authtypes.FeeCollectorName,
 	)
 	govLegacyRouter.AddRoute(alliancetypes.RouterKey, alliance.NewAllianceProposalHandler(app.AllianceKeeper))
 	stakingHooks = append(stakingHooks, app.AllianceKeeper.StakingHooks())
@@ -1121,4 +1114,15 @@ func (app *App) SimulationManager() *module.SimulationManager {
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (app *App) DefaultGenesis() map[string]json.RawMessage {
 	return ModuleBasics.DefaultGenesis(app.cdc)
+}
+
+// UnsafeGetKey returns the KVStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) UnsafeGetKey(storeKey string) *storetypes.KVStoreKey {
+	kvStoreKey, ok := app.keys[storeKey]
+	if !ok {
+		return nil
+	}
+	return kvStoreKey
 }

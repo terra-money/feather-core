@@ -47,6 +47,7 @@ transformations:
 
   - name: account prefix
     type: replace
+    # replaces account prefixes in config.json
     pattern: pfeath
     replacement: "{{ .account_prefix }}"
     files:
@@ -54,6 +55,7 @@ transformations:
 
   - name: bond denom
     type: replace
+    # replaces bond denom in config.json
     pattern: stake
     replacement: "{{ .bond_denom }}"
     files:

@@ -13,5 +13,13 @@
     "unbonding_time": "1814400s",
     "max_validators": 130,
     "max_entries": 7,
-    "min_commission_rate": "0"
+    "min_commission_rate": "0",
+    "lcd_enabled": true,
+    "lcd_swagger_enabled": true,
+    "lcd_port": 1317,
+    "lcd_enable_unsafe_cors": false,
+    "rpc_enabled": true,
+    "rpc_port": 26657,
+    "prometheus_enabled": true,
+    "prometheus_port": 26660
 }
