@@ -425,13 +425,13 @@ func TestAppImportExport(t *testing.T) {
 	_, _, err = simulation.SimulateFromSeed(
 		t,
 		os.Stdout,
-		app.BaseApp,
-		simtestutil.AppStateFn(app.AppCodec(), app.SimulationManager(), app.DefaultGenesis()),
+		app2.BaseApp,
+		simtestutil.AppStateFn(app2.AppCodec(), app2.SimulationManager(), app2.DefaultGenesis()),
 		simtypes.RandomAccounts,
-		simtestutil.SimulationOperations(app, app.AppCodec(), config),
-		app.BankKeeper.GetBlockedAddresses(),
+		simtestutil.SimulationOperations(app2, app2.AppCodec(), config),
+		app2.BankKeeper.GetBlockedAddresses(),
 		config,
-		app.AppCodec(),
+		app2.AppCodec(),
 	)
 	require.NoError(t, err)
 }
