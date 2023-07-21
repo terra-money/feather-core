@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -24,8 +22,6 @@ type Config struct {
 	IndexerDB          string
 	DisableSync        bool
 	EnableExportModule bool
-	RichlistLength     int
-	RichlistThreshold  *sdk.Coin
 }
 
 var singleton Config
@@ -85,35 +81,6 @@ func newConfig() Config {
 		EnableExportModule: func() bool {
 			enableExport := getValidEnv("ENABLE_EXPORT_MODULE")
 			return enableExport == "true"
-		}(),
-
-		// RichlistLength have to be greater than or equal to 0, richlist function will be off if length is 0
-		RichlistLength: func() int {
-			lengthStr := getValidEnv("RICHLIST_LENGTH")
-			length, err := strconv.Atoi(lengthStr)
-			if err != nil {
-				panic(err)
-			}
-			if length < 0 {
-				panic(fmt.Errorf("RICHLIST_LENGTH(%s) is invalid", lengthStr))
-			}
-			return length
-		}(),
-
-		// RichlistThreshold (format: {amount}{denom} like 1000000000000uluna)
-		RichlistThreshold: func() *sdk.Coin {
-			// don't need to read threshold env if the length of richlist is 0
-			lengthStr := getValidEnv("RICHLIST_LENGTH")
-			length, _ := strconv.Atoi(lengthStr)
-			if length == 0 {
-				return nil
-			}
-
-			thresholdCoin, err := sdk.ParseCoinNormalized(getValidEnv("RICHLIST_THRESHOLD"))
-			if err != nil {
-				panic(fmt.Errorf("RICHLIST_THRESHOLD is invalid: %v", err))
-			}
-			return &thresholdCoin
 		}(),
 	}
 

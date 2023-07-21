@@ -4,6 +4,8 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
+	"github.com/terra-money/feather-core/mantlemint/indexer/accounttx"
+	"github.com/terra-money/feather-core/mantlemint/indexer/proposal"
 	"io/ioutil"
 	"log"
 	"os"
@@ -98,11 +100,12 @@ func main() {
 		func(ba *baseapp.BaseApp) {
 			ba.SetCMS(cms)
 		},
+		baseapp.SetChainID(mantlemintConfig.ChainID),
 	)
 
 	// create app...
 	var appCreator = mantlemint.NewConcurrentQueryClientCreator(app)
-	appConns := proxy.NewAppConns(appCreator, nil)
+	appConns := proxy.NewAppConns(appCreator, proxy.NopMetrics())
 	appConns.SetLogger(logger)
 	if startErr := appConns.OnStart(); startErr != nil {
 		panic(startErr)
@@ -171,6 +174,8 @@ func main() {
 
 	indexerInstance.RegisterIndexerService("tx", tx.IndexTx)
 	indexerInstance.RegisterIndexerService("block", block.IndexBlock)
+	indexerInstance.RegisterIndexerService("proposal", proposal.IndexProposals)
+	indexerInstance.RegisterIndexerService("accounttx", accounttx.IndexTx)
 
 	abcicli, _ := appCreator.NewABCIClient()
 	rpccli := rpc.NewRpcClient(abcicli)
@@ -192,6 +197,8 @@ func main() {
 		func(router *mux.Router) {
 			indexerInstance.RegisterRESTRoute(router, tx.RegisterRESTRoute)
 			indexerInstance.RegisterRESTRoute(router, block.RegisterRESTRoute)
+			indexerInstance.RegisterRESTRoute(router, proposal.RegisterRESTRoute)
+			indexerInstance.RegisterRESTRoute(router, accounttx.RegisterRESTRoute)
 		},
 
 		// inject flag checker for synced

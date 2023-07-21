@@ -3,6 +3,7 @@ package tx
 import (
 	"encoding/json"
 	"fmt"
+	tmdb "github.com/cometbft/cometbft-db"
 
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	tm "github.com/cometbft/cometbft/types"
@@ -99,3 +100,15 @@ var IndexTx = indexer.CreateIndexer(func(batch safe_batch.SafeBatchDB, block *tm
 
 	return nil
 })
+
+func GetTxByHash(db tmdb.DB, hash string) (txRecord TxRecord, err error) {
+	b, err := db.Get(getKey(hash))
+	if err != nil {
+		return txRecord, err
+	}
+	err = tmjson.Unmarshal(b, &txRecord)
+	if err != nil {
+		return txRecord, err
+	}
+	return txRecord, nil
+}
