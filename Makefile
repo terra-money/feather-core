@@ -29,7 +29,7 @@ endif
 # read feather config
 FEATH_CONFIG := $(CURDIR)/config/config.json
 
-# these keys must match config/mainnet/config.json
+# these keys must match those in config.json
 KEY_APP_NAME=app_name
 
 # check that required keys are defined in config.json
