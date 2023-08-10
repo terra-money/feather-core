@@ -1,0 +1,12 @@
+{
+  "chain_id": "feather-1",
+  "app_name": "feather-core",
+  "account_address_prefix": "pfeath",
+  "bond_denom": "stake",
+  "bond_supply": "1000000000",
+  "unbonding_time": "1814400s",
+  "max_validators": 130,
+  "max_entries": 7,
+  "min_commission_rate": "0",
+  "accounts": []
+}

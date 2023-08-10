@@ -154,6 +154,7 @@ import (
 
 	"github.com/terra-money/feather-core/app/openapiconsole"
 	appparams "github.com/terra-money/feather-core/app/params"
+	cfg "github.com/terra-money/feather-core/config"
 	"github.com/terra-money/feather-core/docs"
 	feather "github.com/terra-money/feather-core/x/feather"
 	FeatherKeeper "github.com/terra-money/feather-core/x/feather/keeper"
@@ -162,18 +163,31 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
-// DO NOT change the names of these variables!
+// DO NOT change the names of these variables! They are populated by the `init` function.
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
-	AccountAddressPrefix       = "pfeath"
-	AccountPubKeyPrefix        = "pfeathpub"
-	ValidatorAddressPrefix     = "pfeathvaloper"
-	ValidatorPubKeyPrefix      = "pfeathvaloperpub"
-	ConsensusNodeAddressPrefix = "pfeathvalcons"
-	ConsensusNodePubKeyPrefix  = "pfeathvalconspub"
-	BondDenom                  = "stake"
-	AppName                    = "feather-core"
+	// DefaultNodeHome default home directories for the application daemon
+	DefaultNodeHome      string
+	AppName              string
+	BondDenom            string
+	AccountAddressPrefix string
 )
+
+func init() {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	DefaultNodeHome = filepath.Join(userHomeDir, "."+AppName)
+
+	config, err := cfg.Load()
+	if err != nil {
+		panic(err)
+	}
+	AppName = config.AppName
+	BondDenom = config.BondDenom
+	AccountAddressPrefix = config.AccountAddressPrefix
+}
 
 // TODO: What is this?
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -196,9 +210,6 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 }
 
 var (
-	// DefaultNodeHome default home directories for the application daemon
-	DefaultNodeHome string
-
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
@@ -255,15 +266,6 @@ var (
 	_ servertypes.Application = (*App)(nil)
 	_ runtime.AppI            = (*App)(nil)
 )
-
-func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+AppName)
-}
 
 // App extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
