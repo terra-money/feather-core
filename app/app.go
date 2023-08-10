@@ -166,20 +166,16 @@ import (
 // DO NOT change the names of these variables! They are populated by the `init` function.
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
-	// DefaultNodeHome default home directories for the application daemon
-	DefaultNodeHome      string
 	AppName              string
 	BondDenom            string
 	AccountAddressPrefix string
+
+	// The default home dir for the app at ~/.<AppName>
+	DefaultNodeHome string
 )
 
 func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+AppName)
-
+	// Load and use config from config.json
 	config, err := cfg.Load()
 	if err != nil {
 		panic(err)
@@ -187,6 +183,13 @@ func init() {
 	AppName = config.AppName
 	BondDenom = config.BondDenom
 	AccountAddressPrefix = config.AccountAddressPrefix
+
+	// Set default home dir for app at ~/.<AppName>
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	DefaultNodeHome = filepath.Join(userHomeDir, "."+config.AppName)
 }
 
 // TODO: What is this?
