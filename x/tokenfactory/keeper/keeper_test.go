@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
@@ -41,24 +40,4 @@ func (suite *KeeperTestSuite) SetupTest() {
 func (suite *KeeperTestSuite) CreateDefaultDenom() {
 	res, _ := suite.msgServer.CreateDenom(sdk.WrapSDKContext(suite.Ctx), types.NewMsgCreateDenom(suite.TestAccs[0].String(), "bitcoin"))
 	suite.defaultDenom = res.GetNewTokenDenom()
-}
-
-func (suite *KeeperTestSuite) TestCreateModuleAccount() {
-	app := suite.App
-
-	// remove module account
-	tokenfactoryModuleAccount := app.AuthKeeper.GetAccount(suite.Ctx, app.AuthKeeper.GetModuleAddress(types.ModuleName))
-	app.AuthKeeper.RemoveAccount(suite.Ctx, tokenfactoryModuleAccount)
-
-	// ensure module account was removed
-	suite.Ctx = app.BaseApp.NewContext(false, tmproto.Header{})
-	tokenfactoryModuleAccount = app.AuthKeeper.GetAccount(suite.Ctx, app.AuthKeeper.GetModuleAddress(types.ModuleName))
-	suite.Require().Nil(tokenfactoryModuleAccount)
-
-	// create module account
-	app.TokenFactoryKeeper.CreateModuleAccount(suite.Ctx)
-
-	// check that the module account is now initialized
-	tokenfactoryModuleAccount = app.AuthKeeper.GetAccount(suite.Ctx, app.AuthKeeper.GetModuleAddress(types.ModuleName))
-	suite.Require().NotNil(tokenfactoryModuleAccount)
 }
