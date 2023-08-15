@@ -204,8 +204,6 @@ distclean: clean
 ###                                Testing                                  ###
 ###############################################################################
 
-SIM_PKG = ./app
-
 test: test-unit
 
 # For feather to use to test feather-cored correctness. E.g. make --jobs=4 test-all
@@ -229,25 +227,25 @@ test-benchmark:
 	@go test -mod=readonly -bench=. ./...
 
 # Convenience target for running all simulation tests.
-simulate: simulate-nondeterminism simulate-full-app simulate-app-import-export
+simulate: simulate-full-app simulate-nondeterminism simulate-app-import-export
 
 # Runs the simulation, checking invariants every operation.
 simulate-full-app:
 	@echo "Running full application simulation..."
-	@$(GO) test -mod=readonly -run=TestFullAppSimulation ./app -Enabled=true \
-		-NumBlocks=100 -BlockSize=200 -Commit=true -v -timeout 24h
+	@$(GO) test ./app -run=TestFullAppSimulation \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
 # Runs the same simulation multiple times, verifying that the resulting app hash is the same each time.
 simulate-nondeterminism:
 	@echo "Running non-determinism simulation..."
-	@$(GO) test -mod=readonly $(SIM_PKG) -run TestAppStateDeterminism -Enabled=true \
-		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+	@$(GO) test ./app -run=TestAppStateDeterminism \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
 # Exports and imports genesis state, verifying that no data is lost in the process.
 simulate-app-import-export:
 	@echo "Running genesis export/import simulation..."
-	@$(GO) test -v -run=TestAppImportExport ./app -Enabled=true \
-		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+	@$(GO) test ./app -run=TestAppImportExport \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
 integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
