@@ -387,7 +387,7 @@ func New(
 		cdc,
 		app.keys[banktypes.StoreKey],
 		app.AuthKeeper,
-		make(map[string]bool),
+		app.ModuleAccountAddrs(),
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	modules = append(modules, alliancebank.NewAppModule(cdc, app.BankKeeper, app.AuthKeeper, nil))
@@ -1019,6 +1019,20 @@ func GetWasmOpts(app *App, appOpts servertypes.AppOptions) []wasm.Option {
 	wasmOpts = append(wasmOpts, tokenfactorybindings.RegisterCustomPlugins(&app.BankKeeper, &app.TokenFactoryKeeper)...)
 
 	return wasmOpts
+}
+
+// ModuleAccountAddrs returns all the app's module account addresses.
+func (app *App) ModuleAccountAddrs() map[string]bool {
+	modAccAddrs := make(map[string]bool)
+
+	/* #nosec */
+	for acc := range maccPerms {
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
+	}
+
+	delete(modAccAddrs, authtypes.NewModuleAddress(alliancetypes.ModuleName).String())
+
+	return modAccAddrs
 }
 
 // Name returns the name of the App

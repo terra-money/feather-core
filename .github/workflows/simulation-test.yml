@@ -1,10 +1,9 @@
-name: Simulation Test
-
+name: Simulation
 on:
-  # Triggers the workflow on pull request events but only for the 'main' branch
+  push:
+    branches: [main]
   pull_request:
-    branches: ["main"]
-  workflow_dispatch:
+    types: [opened, synchronize, reopened]
 
 jobs:
   simulation-test:
@@ -16,11 +15,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
 
       - name: Download Modules
         run: go mod download
 
-      - name: Test
-        id: test
-        run: go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1
+      - name: Simulation Test
+        run: go test ./app -run=TestFullAppSimulation -mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h

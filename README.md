@@ -184,10 +184,13 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
 }
 ```
 
-Note the following:
+The total supply of a coin during chain genesis is the sum of the following:
 
-- The total supply of a coin during chain genesis is the sum of the `bond_supply` and the sum of the `amount` fields of the `accounts` array
-  - In the example `config.json` above, the total supply of `stake` is `5000000000` and the total supply of `token` is `3000000000`
+1. The `bond_supply` field
+2. The sum of the `amount` fields of the `accounts` array
+3. If the coin is the `bond_denom`, the number of validators multiplied by `1000000` (the minimum amount of `bond_denom` required for a validator's self-delegation)
+
+In the example `config.json` above, assuming we have exactly 5 validators, the total supply of `stake` is `5005000000` and the total supply of `token` is `3000000000` at chain genesis.
 
 ## Publishing
 
