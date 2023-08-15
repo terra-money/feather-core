@@ -6,16 +6,15 @@ import (
 )
 
 type Config struct {
-	ChainID              string    `json:"chain_id"`
-	AppName              string    `json:"app_name"`
-	AccountAddressPrefix string    `json:"account_address_prefix"`
-	BondDenom            string    `json:"bond_denom"`
-	BondSupply           string    `json:"bond_supply"`
-	UnbondingTime        string    `json:"unbonding_time"`
-	MaxValidators        int       `json:"max_validators"`
-	MaxEntries           int       `json:"max_entries"`
-	MinCommissionRate    string    `json:"min_commission_rate"`
-	Accounts             []Account `json:"accounts"`
+	ChainID           string    `json:"chain_id"`
+	AppName           string    `json:"app_name"`
+	AddressPrefix     string    `json:"address_prefix"`
+	BondDenom         string    `json:"bond_denom"`
+	BondSupply        string    `json:"bond_supply"`
+	UnbondingTime     string    `json:"unbonding_time"`
+	MaxValidators     int       `json:"max_validators"`
+	MinCommissionRate string    `json:"min_commission_rate"`
+	Accounts          []Account `json:"accounts"`
 }
 
 type Account struct {

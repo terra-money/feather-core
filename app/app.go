@@ -170,7 +170,7 @@ var (
 	BondDenom            string
 	AccountAddressPrefix string
 
-	// The default home dir for the app at ~/.<AppName>
+	// The default home dir for the app (typically at ~/.<AppName>)
 	DefaultNodeHome string
 )
 
@@ -182,7 +182,7 @@ func init() {
 	}
 	AppName = config.AppName
 	BondDenom = config.BondDenom
-	AccountAddressPrefix = config.AccountAddressPrefix
+	AccountAddressPrefix = config.AddressPrefix
 
 	// Set default home dir for app at ~/.<AppName>
 	userHomeDir, err := os.UserHomeDir()

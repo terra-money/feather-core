@@ -7,8 +7,7 @@
 - [Installing](#installing)
 - [Developing](#developing)
 - [Configuring](#configuring)
-  - [For Development](#for-development)
-  - [For Production](#for-production)
+  - [Coin Total Supply](#coin-total-supply)
 - [Publishing](#publishing)
 - [Approving Join Requests](#approving-join-requests)
 - [Interfaces](#interfaces)
@@ -58,66 +57,12 @@ feather-cored start
 
 ## Configuring
 
-### For Development
-
-Configure the `config/localnet/config.json` file if you want to test run your chain before deploying to production with Feather.
-
-```js
-{
-  // Naming convention: `[-a-zA-Z0-9]{3,47}`.
-  "chain_id": "localnet-1",
-  // List of genesis accounts, with their bank balances at genesis.
-  "accounts": [
-    {
-      "name": "alice",
-      "coins": [
-        {
-          "denom": "token",
-          "amount": "20000"
-        },
-        {
-          "denom": "stake",
-          "amount": "200000000"
-        }
-      ]
-    },
-    {
-      "name": "bob",
-      "coins": [
-        {
-          "denom": "token",
-          "amount": "10000"
-        },
-        {
-          "denom": "stake",
-          "amount": "100000000"
-        }
-      ]
-    }
-  ],
-  // List of genesis validators, with their staked coins at genesis.
-  "validators": [
-    {
-      "name": "alice",
-      "bonded": {
-        "denom": "stake",
-        "amount": "100000000"
-      }
-    }
-  ]
-}
-```
-
-### For Production
-
-Configure the `config/mainnet/config.json` if you would like to do any of the following:
+Edit the `config/config.json` file if you would like to do any of the following:
 
 1. Change the default bond denom of the chain
-2. Change the name of the chain and chain binary
+2. Change the chain ID
 3. Change the genesis account balances
-4. Change the address prefixes of user accounts, validator accounts or consensus accounts
-5. Change parameters from the `x/staking` module when the chain is deployed by Feather
-6. Configure the LCD/RPC/Prometheus endpoints when the chain is deployed by Feather
+4. Change the address prefixes of user accounts, validator accounts, and consensus accounts
 
 ```js
 {
@@ -127,15 +72,8 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
   "chain_id": "feather-1",
   // Human readable name of the chain.
   "app_name": "feather-core",
-  // Metadata registered in the cosmos sdk package (typically `app_name` suffixed with "d").
-  "app_binary_name": "feather-cored",
-  // Address prefixes for user, validator, and consensus accounts.
-  "account_address_prefix": "pfeath",
-  "account_pubkey_prefix": "pfeathpub",
-  "validator_address_prefix": "pfeathvaloper",
-  "validator_pubkey_prefix": "pfeathvaloperpub",
-  "consensus_node_address_prefix": "pfeathvalcons",
-  "consensus_node_pubkey_prefix": "pfeathvalconspub",
+  // Prefix for all addresses on the chain.
+  "address_prefix": "pfeath",
   // Staking bond denominator (i.e. coin denom used for staking).
   "bond_denom": "stake",
   // Amount of `bond_denom` used for staking at genesis.
@@ -145,11 +83,9 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
   "unbonding_time": "1814400s",
   // Max number of validators the chain supports.
   "max_validators": 130,
-  "max_entries": 7,
   // Minimum commission rate for validators.
   "min_commission_rate": "0",
   // List of genesis accounts, with their bank balances at genesis.
-  // Unlike the `accounts` in `config/localnet/config.json`, the `name` field is replaced with the actual `address`.
   "accounts": [
     {
       "address": "pfeath1...aaa",
@@ -165,24 +101,10 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
       ]
     }
   ],
-  // Whether to start the LCD server with the chain.
-  "lcd_enabled": true,
-  // Exposes a swagger page documenting exposed API endpoints at IP:<lcd_port>.
-  "lcd_swagger_enabled": true,
-  // Configurable LCD server port.
-  "lcd_port": 1317,
-  // Enable this if querying the blockchain from a CORS-enabled app, like web browsers.
-  "lcd_enable_unsafe_cors": false,
-  // Whether to start the RPC server with the chain.
-  "rpc_enabled": true,
-  // Configurable RPC server port.
-  "rpc_port": 26657,
-  // Whether to enable Prometheus metrics.
-  "prometheus_enabled": true,
-  // Configurable Prometheus port.
-  "prometheus_port": 26660
 }
 ```
+
+### Coin Total Supply
 
 The total supply of a coin during chain genesis is the sum of the following:
 
