@@ -227,8 +227,7 @@ test-benchmark:
 	@go test -mod=readonly -bench=. ./...
 
 # Convenience target for running all simulation tests.
-# TODO: simulate-nondeterminism and simulate-app-import-export are currently broken
-simulate: simulate-full-app # simulate-nondeterminism simulate-app-import-export
+simulate: simulate-full-app simulate-nondeterminism simulate-app-import-export
 
 # Runs the simulation, checking invariants every operation.
 simulate-full-app:
@@ -236,17 +235,17 @@ simulate-full-app:
 	@$(GO) test ./app -run=TestFullAppSimulation \
 		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
-# # Runs the same simulation multiple times, verifying that the resulting app hash is the same each time.
-# simulate-nondeterminism:
-# 	@echo "Running non-determinism simulation..."
-# 	@$(GO) test ./app -run=TestAppStateDeterminism \
-# 		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
+# Runs the same simulation multiple times, verifying that the resulting app hash is the same each time.
+simulate-nondeterminism:
+	@echo "Running non-determinism simulation..."
+	@$(GO) test ./app -run=TestAppStateDeterminism \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
-# # Exports and imports genesis state, verifying that no data is lost in the process.
-# simulate-app-import-export:
-# 	@echo "Running genesis export/import simulation..."
-# 	@$(GO) test ./app -run=TestAppImportExport \
-# 		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
+# Exports and imports genesis state, verifying that no data is lost in the process.
+simulate-app-import-export:
+	@echo "Running genesis export/import simulation..."
+	@$(GO) test ./app -run=TestAppImportExport \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
 integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
