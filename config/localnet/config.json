@@ -1,40 +1,40 @@
 {
-    "chain_id": "test-chain",
-    "accounts": [
+  "chain_id": "localnet-1",
+  "accounts": [
+    {
+      "name": "alice",
+      "coins": [
         {
-            "name": "alice",
-            "coins": [
-                {
-                    "denom": "token",
-                    "amount": "20000"
-                },
-                {
-                    "denom": "stake",
-                    "amount": "200000000"
-                }
-            ]
+          "denom": "token",
+          "amount": "20000"
         },
         {
-            "name": "bob",
-            "coins": [
-                {
-                    "denom": "token",
-                    "amount": "10000"
-                },
-                {
-                    "denom": "stake",
-                    "amount": "100000000"
-                }
-            ]
+          "denom": "stake",
+          "amount": "200000000"
         }
-    ],
-    "validators": [
+      ]
+    },
+    {
+      "name": "bob",
+      "coins": [
         {
-            "name": "alice",
-            "bonded": {
-                "denom": "stake",
-                "amount": "100000000"
-            }
+          "denom": "token",
+          "amount": "10000"
+        },
+        {
+          "denom": "stake",
+          "amount": "100000000"
         }
-    ]
+      ]
+    }
+  ],
+  "validators": [
+    {
+      "name": "alice",
+      "bonded": {
+        "denom": "stake",
+        "amount": "100000000"
+      }
+    }
+  ]
 }
