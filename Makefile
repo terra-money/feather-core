@@ -103,13 +103,13 @@ include contrib/devtools/Makefile
 all: install lint test
 
 install: go.sum
-	go build -o $(GOBIN)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-core
+	go build -o $(GOBIN)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-cored
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) ./cmd/feather-core
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) ./cmd/feather-cored
 endif
 
 build-contract-tests-hooks:
@@ -134,7 +134,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go install github.com/RobotsAndPencils/goviz@latest
-	@goviz -i ./cmd/feather-core -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/feather-cored -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/

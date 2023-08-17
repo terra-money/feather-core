@@ -76,7 +76,7 @@ Edit the `config/config.json` file if you would like to do any of the following:
   // Human readable name of the chain.
   "app_name": "feather-core",
   // Prefix for all addresses on the chain.
-  "address_prefix": "pfeath",
+  "address_prefix": "feath",
   // Staking bond denominator (i.e. coin denom used for staking).
   "bond_denom": "stake",
   // Amount of `bond_denom` used for staking at genesis.
@@ -91,7 +91,7 @@ Edit the `config/config.json` file if you would like to do any of the following:
   // List of genesis accounts, with their balances at genesis.
   "accounts": [
     {
-      "address": "pfeath1...aaa",
+      "address": "feath1...aaa",
       "coins": [
         {
           "denom": "stake",
