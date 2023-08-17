@@ -125,7 +125,7 @@ func TestFullAppSimulation(t *testing.T) {
 		baseapp.SetChainID(simulationAppChainID),
 		fauxMerkleModeOpt,
 	)
-	require.Equal(t, AppName, app.Name())
+	require.Equal(t, Name, app.Name())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -204,7 +204,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				baseapp.SetChainID(simulationAppChainID),
 				fauxMerkleModeOpt,
 			)
-			require.Equal(t, AppName, app.Name())
+			require.Equal(t, Name, app.Name())
 
 			fmt.Printf(
 				"running non-determinism simulation; seed %d: attempt: %d/%d\n",
@@ -310,7 +310,7 @@ func TestAppImportExport(t *testing.T) {
 		baseapp.SetChainID(simulationAppChainID),
 		fauxMerkleModeOpt,
 	)
-	require.Equal(t, AppName, app.Name())
+	require.Equal(t, Name, app.Name())
 
 	// run randomized simulation
 	_, simParams, simErr := simulation.SimulateFromSeed(
@@ -359,7 +359,7 @@ func TestAppImportExport(t *testing.T) {
 		baseapp.SetChainID(simulationAppChainID),
 		fauxMerkleModeOpt,
 	)
-	require.Equal(t, AppName, app2.Name())
+	require.Equal(t, Name, app2.Name())
 
 	var genesisState GenesisState
 	err = json.Unmarshal(exported.AppState, &genesisState)

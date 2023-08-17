@@ -166,31 +166,10 @@ import (
 // DO NOT change the names of these variables! They are populated by the `init` function.
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
-	AppName              string
-	BondDenom            string
 	AccountAddressPrefix string
-
-	// The default home dir for the app (typically at ~/.<AppName>)
-	DefaultNodeHome string
+	Name                 string
+	BondDenom            string
 )
-
-func init() {
-	// Load and use config from config.json
-	config, err := cfg.Load()
-	if err != nil {
-		panic(err)
-	}
-	AppName = config.AppName
-	BondDenom = config.BondDenom
-	AccountAddressPrefix = config.AddressPrefix
-
-	// Set default home dir for app at ~/.<AppName>
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-	DefaultNodeHome = filepath.Join(userHomeDir, "."+config.AppName)
-}
 
 // TODO: What is this?
 func getGovProposalHandlers() []govclient.ProposalHandler {
@@ -213,6 +192,9 @@ func getGovProposalHandlers() []govclient.ProposalHandler {
 }
 
 var (
+	// DefaultNodeHome default home directories for the application daemon
+	DefaultNodeHome string
+
 	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
 	// non-dependant module elements, such as codec registration
 	// and genesis verification.
@@ -269,6 +251,24 @@ var (
 	_ servertypes.Application = (*App)(nil)
 	_ runtime.AppI            = (*App)(nil)
 )
+
+func init() {
+	// Load and use config from config.json
+	config, err := cfg.Load()
+	if err != nil {
+		panic(err)
+	}
+	Name = config.AppName
+	BondDenom = config.BondDenom
+	AccountAddressPrefix = config.AddressPrefix
+
+	// Set default home dir for app at ~/.<Name>
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+	DefaultNodeHome = filepath.Join(userHomeDir, "."+Name)
+}
 
 // App extends an ABCI application, but with most of its parameters exported.
 // They are exported for convenience in creating helper functions, as object
@@ -347,7 +347,7 @@ func New(
 	// Init App
 	app := &App{
 		BaseApp: baseapp.NewBaseApp(
-			AppName,
+			Name,
 			logger,
 			db,
 			encodingConfig.TxConfig.TxDecoder(),
@@ -1103,7 +1103,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 	// register app's OpenAPI routes.
 	apiSvr.Router.Handle("/static/openapi.yml", http.FileServer(http.FS(docs.Docs)))
-	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(AppName, "/static/openapi.yml"))
+	apiSvr.Router.HandleFunc("/", openapiconsole.Handler(Name, "/static/openapi.yml"))
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
