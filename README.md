@@ -7,8 +7,9 @@
 - [Installing](#installing)
 - [Developing](#developing)
 - [Configuring](#configuring)
-  - [For Development](#for-development)
-  - [For Production](#for-production)
+  - [Genesis Validator Delegations](#genesis-validator-delegations)
+  - [Genesis Account Balances](#genesis-account-balances)
+  - [Genesis Coins Total Supply](#genesis-coins-total-supply)
 - [Publishing](#publishing)
 - [Approving Join Requests](#approving-join-requests)
 - [Interfaces](#interfaces)
@@ -42,82 +43,29 @@ feather dev build
 Check for correctness by running chain simulations:
 
 ```bash
-# Run in repo root
+# Run in repo root:
 feather dev simulate
 ```
 
-Initialize configs to start the chain (for local testing):
+Initialize and run a localnet with a single local validator for testing purposes:
 
 ```bash
-# Run in repo root
-feather dev sandbox init
+# Run in repo root:
+feather dev sandbox serve
 
-# Start the chain (your binary name may differ)
-feather-cored start
+# OR, if you prefer to be explicit:
+feather dev sandbox init  # initialize all genesis files
+feather-cored start       # start the localnet (your built binary name may differ)
 ```
 
 ## Configuring
 
-### For Development
-
-Configure the `config/localnet/config.json` file if you want to test run your chain before deploying to production with Feather.
-
-```js
-{
-  // Naming convention: `[-a-zA-Z0-9]{3,47}`.
-  "chain_id": "localnet-1",
-  // List of genesis accounts, with their bank balances at genesis.
-  "accounts": [
-    {
-      "name": "alice",
-      "coins": [
-        {
-          "denom": "token",
-          "amount": "20000"
-        },
-        {
-          "denom": "stake",
-          "amount": "200000000"
-        }
-      ]
-    },
-    {
-      "name": "bob",
-      "coins": [
-        {
-          "denom": "token",
-          "amount": "10000"
-        },
-        {
-          "denom": "stake",
-          "amount": "100000000"
-        }
-      ]
-    }
-  ],
-  // List of genesis validators, with their staked coins at genesis.
-  "validators": [
-    {
-      "name": "alice",
-      "bonded": {
-        "denom": "stake",
-        "amount": "100000000"
-      }
-    }
-  ]
-}
-```
-
-### For Production
-
-Configure the `config/mainnet/config.json` if you would like to do any of the following:
+Edit the `config/config.json` file if you would like to do any of the following:
 
 1. Change the default bond denom of the chain
-2. Change the name of the chain and chain binary
+2. Change the chain ID
 3. Change the genesis account balances
-4. Change the address prefixes of user accounts, validator accounts or consensus accounts
-5. Change parameters from the `x/staking` module when the chain is deployed by Feather
-6. Configure the LCD/RPC/Prometheus endpoints when the chain is deployed by Feather
+4. Change the address prefixes of user accounts, validator accounts, and consensus accounts
 
 ```js
 {
@@ -127,15 +75,8 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
   "chain_id": "feather-1",
   // Human readable name of the chain.
   "app_name": "feather-core",
-  // Metadata registered in the cosmos sdk package (typically `app_name` suffixed with "d").
-  "app_binary_name": "feather-cored",
-  // Address prefixes for user, validator, and consensus accounts.
-  "account_address_prefix": "pfeath",
-  "account_pubkey_prefix": "pfeathpub",
-  "validator_address_prefix": "pfeathvaloper",
-  "validator_pubkey_prefix": "pfeathvaloperpub",
-  "consensus_node_address_prefix": "pfeathvalcons",
-  "consensus_node_pubkey_prefix": "pfeathvalconspub",
+  // Prefix for all addresses on the chain.
+  "address_prefix": "pfeath",
   // Staking bond denominator (i.e. coin denom used for staking).
   "bond_denom": "stake",
   // Amount of `bond_denom` used for staking at genesis.
@@ -145,11 +86,9 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
   "unbonding_time": "1814400s",
   // Max number of validators the chain supports.
   "max_validators": 130,
-  "max_entries": 7,
-  // Minimum commission rate for validators.
+  // Minimum commission rate for validators. Must be a number between 0 and 1.
   "min_commission_rate": "0",
-  // List of genesis accounts, with their bank balances at genesis.
-  // Unlike the `accounts` in `config/localnet/config.json`, the `name` field is replaced with the actual `address`.
+  // List of genesis accounts, with their balances at genesis.
   "accounts": [
     {
       "address": "pfeath1...aaa",
@@ -165,32 +104,44 @@ Configure the `config/mainnet/config.json` if you would like to do any of the fo
       ]
     }
   ],
-  // Whether to start the LCD server with the chain.
-  "lcd_enabled": true,
-  // Exposes a swagger page documenting exposed API endpoints at IP:<lcd_port>.
-  "lcd_swagger_enabled": true,
-  // Configurable LCD server port.
-  "lcd_port": 1317,
-  // Enable this if querying the blockchain from a CORS-enabled app, like web browsers.
-  "lcd_enable_unsafe_cors": false,
-  // Whether to start the RPC server with the chain.
-  "rpc_enabled": true,
-  // Configurable RPC server port.
-  "rpc_port": 26657,
-  // Whether to enable Prometheus metrics.
-  "prometheus_enabled": true,
-  // Configurable Prometheus port.
-  "prometheus_port": 26660
 }
 ```
 
-The total supply of a coin during chain genesis is the sum of the following:
+### Genesis Validator Delegations
 
-1. The `bond_supply` field
-2. The sum of the `amount` fields of the `accounts` array
-3. If the coin is the `bond_denom`, the number of validators multiplied by `1000000` (the minimum amount of `bond_denom` required for a validator's self-delegation)
+At genesis, all validators will have an initial *self-delegation* of exactly `1000000` of the `bond_denom` (ie. `stake`). This is to satisfy Cosmos SDK's requirement of having at least one validator with a total delegation of at least `1000000` of the `bond_denom` during chain genesis.
 
-In the example `config.json` above, assuming we have exactly 5 validators, the total supply of `stake` is `5005000000` and the total supply of `token` is `3000000000` at chain genesis.
+Additionally, all `bond_supply` (owned by the address of the chain deployer) will be split according to the stake distribution setting specified and delegated to genesis validators. There are currently two stake distribution settings:
+
+1. `equal`: All genesis validators receive an equal amount of delegations (ie. $\frac{\texttt{bond\_supply}}{\texttt{num\_genesis\_validators}}$) from the chain deployer
+2. `terravp`: All validators receive delegations proportional to the validator's voting power in the Terra chain from the chain deployer
+   - A validator that has no voting power in the Terra chain will thus NOT receive any delegations from the chain deployer
+
+In summary, the total delegation or voting power of a validator at chain genesis when using the `equal` stake distribution strategy is:
+
+$$
+1000000 + \left( \frac{\texttt{bond\_supply}}{\texttt{num\_genesis\_validators}}\right)
+$$
+
+And when using the `terravp` stake distribution strategy:
+
+$$
+1000000 + \left( {\texttt{bond\_supply}} \times \frac{\texttt{validator\_voting\_power}}{\texttt{total\_voting\_power}} \right)
+$$
+
+### Genesis Account Balances
+
+The `accounts` array in `config.json` specifies the genesis accounts and their balances at chain genesis. These balances are **in addition** of the `bond_supply` field or any validator's self-delegations. In other words, a chain deployer can have a `bond_supply` of `1000000000` and still have an additional genesis account with a balance of `5000000000` of the `bond_denom` (ie. `stake`) specified, meaning they will own a total of `6000000000` of the `bond_denom` at chain genesis. Likewise, a validator will own a total of `1000000` of the `bond_denom` (used for self-delegation) and whatever is specified in the `accounts` array.
+
+### Genesis Coins Total Supply
+
+The total supply of a coin at chain genesis is the sum of the following:
+
+1. The sum of the `amount` fields of the `accounts` array whose `denom` field matches the coin's denom
+2. If the coin is the `bond_denom`, the `bond_supply` field
+3. If the coin is the `bond_denom`, the number of genesis validators multiplied by `1000000` (the minimum amount of `bond_denom` required for a validator's self-delegation)
+
+In the example `config.json` above, assuming we have exactly 8 validators, the total supply of `stake` is `5008000000` and the total supply of `token` is `3000000000` at chain genesis.
 
 ## Publishing
 
