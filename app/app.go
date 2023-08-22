@@ -163,12 +163,13 @@ import (
 	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 )
 
-// DO NOT change the names of these variables! They are populated by the `init` function.
+// DO NOT change the names and values of these variables! They are populated by the `init` function.
 // TODO: to prevent other users from changing these variables, we could probably just publish our own package like https://pkg.go.dev/github.com/cosmos/cosmos-sdk/version
 var (
 	AccountAddressPrefix string
 	Name                 string
 	BondDenom            string
+	CoinType             uint32
 )
 
 // TODO: What is this?
@@ -261,6 +262,9 @@ func init() {
 	Name = config.AppName
 	BondDenom = config.BondDenom
 	AccountAddressPrefix = config.AddressPrefix
+	// Feather chains' coin type should follow Terra's coin type.
+	// WARNING: changing this value will break feather's assumptions and functionalities.
+	CoinType = 330
 
 	// Set default home dir for app at ~/.<Name>
 	userHomeDir, err := os.UserHomeDir()
