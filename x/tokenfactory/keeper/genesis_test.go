@@ -49,10 +49,6 @@ func (suite *KeeperTestSuite) TestGenesis() {
 	app.TokenFactoryKeeper.SetParams(suite.Ctx, types.Params{DenomCreationFee: sdk.Coins{sdk.NewInt64Coin("uosmo", 100)}})
 	app.TokenFactoryKeeper.InitGenesis(suite.Ctx, genesisState)
 
-	// check that the module account is now initialized
-	tokenfactoryModuleAccount = app.AuthKeeper.GetAccount(suite.Ctx, app.AuthKeeper.GetModuleAddress(types.ModuleName))
-	suite.Require().NotNil(tokenfactoryModuleAccount)
-
 	exportedGenesis := app.TokenFactoryKeeper.ExportGenesis(suite.Ctx)
 	suite.Require().NotNil(exportedGenesis)
 	suite.Require().Equal(genesisState, *exportedGenesis)

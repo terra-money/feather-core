@@ -4,17 +4,20 @@ ignore:
   - transformations.yml
 
 inputs:
-  - id: go_module
-    text: What is the Go module name? (e.g. github.com/entity/chain)
+  - id: chain_id
+    text: What is the chain ID? (eg. feather-1)
     type: text
   - id: chain_name
-    text: What is the chain name? (e.g. feather)
+    text: What is the chain name? (eg. feather-core)
     type: text
-  - id: account_prefix
-    text: What is the account prefix? (e.g. feath)
+  - id: address_prefix
+    text: What is the address prefix? (eg. feath)
     type: text
   - id: bond_denom
-    text: What is the bond denom? (e.g. stake)
+    text: What is the bond denom? (eg. stake)
+    type: text
+  - id: go_module
+    text: What is the Go module name? (typically github.com/<user>/<chain_name>)
     type: text
 
 transformations:
@@ -43,19 +46,28 @@ transformations:
     files:
       - "README.md"
       - "docs/static/openapi.yml"
-      - "config/mainnet/config.json"
+      - "config/config.json"
 
-  - name: account prefix
+  - name: chain ID
     type: replace
-    pattern: pfeath
-    replacement: "{{ .account_prefix }}"
+    # replaces chain_id in config.json
+    pattern: feather-1
+    replacement: "{{ .chain_id }}"
     files:
-      - "config/mainnet/config.json"
+      - "config/config.json"
+
+  - name: address prefix
+    type: replace
+    # replaces address_prefix in config.json
+    pattern: feath
+    replacement: "{{ .address_prefix }}"
+    files:
+      - "config/config.json"
 
   - name: bond denom
     type: replace
+    # replaces bond_denom in config.json
     pattern: stake
     replacement: "{{ .bond_denom }}"
     files:
-      - "config/localnet/config.json"
-      - "config/mainnet/config.json"
+      - "config/config.json"

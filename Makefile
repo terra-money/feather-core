@@ -1,14 +1,20 @@
 #!/usr/bin/make -f
 
-SIMAPP = ./app
+ifeq ($(OS),Windows_NT)
+  $(error "Windows is not supported")
+endif
+
+FEATHER_CORE_VERSION = v0.1.0
+
+GO := $(shell command -v go 2> /dev/null)
+GOBIN = $(GOPATH)/bin
+GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
+
 LEDGER_ENABLED ?= true
-BINDIR ?= $(GOPATH)/bin
 BUILDDIR ?= $(CURDIR)/build
 DOCKER := $(shell which docker)
 COMMIT := $(shell git log -1 --format='%H')
-VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 SDK_PACK := $(shell go list -m github.com/cosmos/cosmos-sdk | sed  's/ /\@/g')
-GO_VERSION := $(shell cat go.mod | grep -E 'go [0-9].[0-9]+' | cut -d ' ' -f 2)
 JQ := $(shell which jq)
 HTTPS_GIT := https://github.com/terra-money/feather-core.git
 
@@ -21,72 +27,23 @@ ifeq ($(JQ),)
 endif
 
 # read feather config
+FEATH_CONFIG := $(CURDIR)/config/config.json
 
-FEATH_CONFIG := $(CURDIR)/config/mainnet/config.json
-
-# these keys must match config/mainnet/config.json
+# these keys must match those in config.json
 KEY_APP_NAME=app_name
-KEY_BOND_DENOM=bond_denom
-KEY_APP_BINARY_NAME=app_binary_name
-KEY_ACC_ADDR_PREFIX=account_address_prefix
-KEY_ACC_PUBKEY_PREFIX=account_pubkey_prefix
-KEY_VALIDATOR_ADDRESS_PREFIX=validator_address_prefix
-KEY_VALIDATOR_PUBKEY_PREFIX=validator_pubkey_prefix
-KEY_CONS_NODE_ADDR_PREFIX=consensus_node_address_prefix
-KEY_CONS_NODE_PUBKEY_PREFIX=consensus_node_pubkey_prefix
 
 # check that required keys are defined in config.json
 HAS_APP_NAME := $(shell jq 'has("$(KEY_APP_NAME)")' $(FEATH_CONFIG))
-HAS_BOND_DENOM := $(shell jq 'has("$(KEY_BOND_DENOM)")' $(FEATH_CONFIG))
-HAS_APP_BINARY_NAME := $(shell jq 'has("$(KEY_APP_BINARY_NAME)")' $(FEATH_CONFIG))
-HAS_ACC_ADDR_PREFIX := $(shell jq 'has("$(KEY_ACC_ADDR_PREFIX)")' $(FEATH_CONFIG))
-HAS_ACC_PUBKEY_PREFIX := $(shell jq 'has("$(KEY_ACC_PUBKEY_PREFIX)")' $(FEATH_CONFIG))
-HAS_VALIDATOR_ADDRESS_PREFIX := $(shell jq 'has("$(KEY_VALIDATOR_ADDRESS_PREFIX)")' $(FEATH_CONFIG))
-HAS_VALIDATOR_PUBKEY_PREFIX := $(shell jq 'has("$(KEY_VALIDATOR_PUBKEY_PREFIX)")' $(FEATH_CONFIG))
-HAS_CONS_NODE_ADDR_PREFIX := $(shell jq 'has("$(KEY_CONS_NODE_ADDR_PREFIX)")' $(FEATH_CONFIG))
-HAS_CONS_NODE_PUBKEY_PREFIX := $(shell jq 'has("$(KEY_CONS_NODE_PUBKEY_PREFIX)")' $(FEATH_CONFIG))
 
 ifeq ($(HAS_APP_NAME),false)
   $(error "$(FEATH_CONFIG) does not have key $(KEY_APP_NAME)")
 endif
-ifeq ($(HAS_BOND_DENOM),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_BOND_DENOM)")
-endif
-ifeq ($(HAS_APP_BINARY_NAME),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_APP_BINARY_NAME)")
-endif
-ifeq ($(HAS_ACC_ADDR_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_ACC_ADDR_PREFIX)")
-endif
-ifeq ($(HAS_ACC_PUBKEY_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_ACC_PUBKEY_PREFIX)")
-endif
-ifeq ($(HAS_VALIDATOR_ADDRESS_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_VALIDATOR_ADDRESS_PREFIX)")
-endif
-ifeq ($(HAS_VALIDATOR_PUBKEY_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_VALIDATOR_PUBKEY_PREFIX)")
-endif
-ifeq ($(HAS_CONS_NODE_ADDR_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_CONS_NODE_ADDR_PREFIX)")
-endif
-ifeq ($(HAS_CONS_NODE_PUBKEY_PREFIX),false)
-  $(error "$(FEATH_CONFIG) does not have key $(KEY_CONS_NODE_PUBKEY_PREFIX)")
-endif
 
 # retrieve key values, strip double quotes
 FEATH_CONFIG_APP_NAME := $(patsubst "%",%,$(shell jq '.$(KEY_APP_NAME)' $(FEATH_CONFIG)))
-FEATH_CONFIG_BOND_DENOM := $(patsubst "%",%,$(shell jq '.$(KEY_BOND_DENOM)' $(FEATH_CONFIG)))
-FEATH_CONFIG_APP_BINARY_NAME := $(patsubst "%",%,$(shell jq '.$(KEY_APP_BINARY_NAME)' $(FEATH_CONFIG)))
-FEATH_CONFIG_ACC_ADDR_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_ACC_ADDR_PREFIX)' $(FEATH_CONFIG)))
-FEATH_CONFIG_ACC_PUBKEY_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_ACC_PUBKEY_PREFIX)' $(FEATH_CONFIG)))
-FEATH_CONFIG_VALIDATOR_ADDRESS_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_VALIDATOR_ADDRESS_PREFIX)' $(FEATH_CONFIG)))
-FEATH_CONFIG_VALIDATOR_PUBKEY_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_VALIDATOR_PUBKEY_PREFIX)' $(FEATH_CONFIG)))
-FEATH_CONFIG_CONS_NODE_ADDR_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_CONS_NODE_ADDR_PREFIX)' $(FEATH_CONFIG)))
-FEATH_CONFIG_CONS_NODE_PUBKEY_PREFIX := $(patsubst "%",%,$(shell jq '.$(KEY_CONS_NODE_PUBKEY_PREFIX)' $(FEATH_CONFIG)))
+FEATH_CONFIG_APP_BINARY_NAME := $(FEATH_CONFIG_APP_NAME)d
 
 # process build tags
-
 build_tags = netgo
 ifeq ($(LEDGER_ENABLED),true)
   ifeq ($(OS),Windows_NT)
@@ -123,20 +80,11 @@ comma := ,
 build_tags_comma_sep := $(subst $(empty),$(comma),$(build_tags))
 
 # process linker flags
-
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=$(FEATH_CONFIG_APP_NAME) \
 		  -X github.com/cosmos/cosmos-sdk/version.AppName=$(FEATH_CONFIG_APP_BINARY_NAME) \
-		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+		  -X github.com/cosmos/cosmos-sdk/version.Version=$(FEATHER_CORE_VERSION) \
 		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-		  -X github.com/terra-money/feather-core/app.AppName=$(FEATH_CONFIG_APP_NAME) \
-		  -X github.com/terra-money/feather-core/app.AccountAddressPrefix=$(FEATH_CONFIG_ACC_ADDR_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.AccountPubKeyPrefix=$(FEATH_CONFIG_ACC_PUBKEY_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.ValidatorAddressPrefix=$(FEATH_CONFIG_VALIDATOR_ADDRESS_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.ValidatorPubKeyPrefix=$(FEATH_CONFIG_VALIDATOR_PUBKEY_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.ConsensusNodeAddressPrefix=$(FEATH_CONFIG_CONS_NODE_ADDR_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.ConsensusNodePubKeyPrefix=$(FEATH_CONFIG_ACC_PUBKEY_PREFIX) \
-		  -X github.com/terra-money/feather-core/app.BondDenom=$(FEATH_CONFIG_BOND_DENOM)
+		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq ($(WITH_CLEVELDB),yes)
   ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
@@ -155,13 +103,13 @@ include contrib/devtools/Makefile
 all: install lint test
 
 install: go.sum
-	go build -o $(BINDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-core
+	go build -o $(GOBIN)/$(FEATH_CONFIG_APP_BINARY_NAME) -mod=readonly $(BUILD_FLAGS) ./cmd/feather-cored
 
 build: go.sum
 ifeq ($(OS),Windows_NT)
 	exit 1
 else
-	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/feather-core ./cmd/feather-core
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) ./cmd/feather-cored
 endif
 
 build-mantlemint: go.sum
@@ -178,44 +126,9 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/contract_tests ./cmd/contract_tests
 endif
 
-build-reproducible: build-reproducible-amd64 build-reproducible-arm64
-
-build-reproducible-amd64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-core-builder || true
-	$(DOCKER) buildx use feather-core-builder
-	$(DOCKER) buildx build \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GIT_VERSION=$(VERSION) \
-		--build-arg GIT_COMMIT=$(COMMIT) \
-		--build-arg RUNNER_IMAGE=alpine:3.16 \
-		--platform linux/amd64 \
-		-t feather-core:local-amd64 \
-		--load \
-		-f Dockerfile .
-	$(DOCKER) rm -f feather-core-binary || true
-	$(DOCKER) create -ti --name feather-core-binary feather-core:local-amd64
-	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-amd64
-	$(DOCKER) rm -f feather-core-binary
-
-build-reproducible-arm64: go.sum $(BUILDDIR)/
-	$(DOCKER) buildx create --name feather-core-builder  || true
-	$(DOCKER) buildx use feather-core-builder 
-	$(DOCKER) buildx build \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GIT_VERSION=$(VERSION) \
-		--build-arg GIT_COMMIT=$(COMMIT) \
-		--build-arg RUNNER_IMAGE=alpine:3.16 \
-		--platform linux/arm64 \
-		-t feather-core:local-arm64 \
-		--load \
-		-f Dockerfile .
-	$(DOCKER) rm -f feather-core-binary || true
-	$(DOCKER) create -ti --name feather-core-binary feather-core:local-arm64
-	$(DOCKER) cp feather-core-binary:/usr/local/bin/feather-core $(BUILDDIR)/feather-core-linux-arm64
-	$(DOCKER) rm -f feather-core-binary
-
 ########################################
 ### Tools & dependencies
+########################################
 
 go-mod-cache: go.sum
 	@echo "--> Download go modules to local cache"
@@ -228,7 +141,7 @@ go.sum: go.mod
 draw-deps:
 	@# requires brew install graphviz or apt-get install graphviz
 	go install github.com/RobotsAndPencils/goviz@latest
-	@goviz -i ./cmd/feather-core -d 2 | dot -Tpng -o dependency-graph.png
+	@goviz -i ./cmd/feather-cored -d 2 | dot -Tpng -o dependency-graph.png
 
 clean:
 	rm -rf snapcraft-local.yaml build/
@@ -241,30 +154,47 @@ distclean: clean
 ###############################################################################
 
 test: test-unit
-test-all: test-race test-cover
+
+# For feather to use to test feather-cored correctness. E.g. make --jobs=4 test-all
+test-all: test-unit test-race simulate
 
 test-unit:
-	@VERSION=$(VERSION) go test -mod=readonly -tags='ledger test_ledger_mock' ./...
+	@echo "Running unit tests..."
+	@go test -mod=readonly ./...
 
 test-race:
-	@VERSION=$(VERSION) go test -mod=readonly -race -tags='ledger test_ledger_mock' ./...
+	@echo "Running tests with race condition detection..."
+	@go test -mod=readonly -race ./...
 
+# Generates a test coverage report, which can be used with the `go tool cover` command to view test coverage.
 test-cover:
-	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.txt -covermode=atomic -tags='ledger test_ledger_mock' ./...
+	@echo "Generating coverage profile 'coverage.out'..."
+	@go test -mod=readonly -timeout 30m -race -coverprofile=coverage.out -covermode=atomic ./...
+	@echo "Coverage profile generated. Open in a web browser with: go tool cover -html=coverage.out"
 
-benchmark:
+test-benchmark:
 	@go test -mod=readonly -bench=. ./...
 
-test-sim-import-export: runsim
-	@echo "Running application import/export simulation. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppImportExport
+# Convenience target for running all simulation tests.
+simulate: simulate-full-app simulate-nondeterminism simulate-app-import-export
 
-test-sim-multi-seed-short: runsim
-	@echo "Running short multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
-	
-simulate:
-	@go test -v -run=TestFullAppSimulation ./app -NumBlocks 200 -BlockSize 50 -Commit -Enabled -Period 1
+# Runs the simulation, checking invariants every operation.
+simulate-full-app:
+	@echo "Running full application simulation..."
+	@$(GO) test ./app -run=TestFullAppSimulation \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
+
+# Runs the same simulation multiple times, verifying that the resulting app hash is the same each time.
+simulate-nondeterminism:
+	@echo "Running non-determinism simulation..."
+	@$(GO) test ./app -run=TestAppStateDeterminism \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
+
+# Exports and imports genesis state, verifying that no data is lost in the process.
+simulate-app-import-export:
+	@echo "Running genesis export/import simulation..."
+	@$(GO) test ./app -run=TestAppImportExport \
+		-mod=readonly -Enabled=true -NumBlocks=100 -BlockSize=50 -Commit=true -Period=0 -v -timeout=24h
 
 integration-test: clean-integration-test-data install
 	@echo "Initializing both blockchains..."
