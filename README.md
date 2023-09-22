@@ -101,9 +101,20 @@ Edit the `config/config.json` file if you would like to do any of the following:
           "denom": "token",
           "amount": "3000000000"
         }
-      ]
+      ],
+      // Optional vesting configurations
+      "vesting": {
+        "coins": [
+          {
+            "denom": "stake",      // Must already exist in the root `coins` section
+            "amount": "1000000000" // Must be less than the amount defined in the root `coins` section
+          }
+        ],
+        "start": 1690000000, // Unix time; optional
+        "end": 1700000000    // Unix time; must be larger than `start`
+      }
     }
-  ],
+  ]
 }
 ```
 
@@ -132,6 +143,8 @@ $$
 ### Genesis Account Balances
 
 The `accounts` array in `config.json` specifies the genesis accounts and their balances at chain genesis. These balances are **in addition** of the `bond_supply` field or any validator's self-delegations. In other words, a chain deployer can have a `bond_supply` of `1000000000` and still have an additional genesis account with a balance of `5000000000` of the `bond_denom` (ie. `stake`) specified, meaning they will own a total of `6000000000` of the `bond_denom` at chain genesis. Likewise, a validator will own a total of `1000000` of the `bond_denom` (used for self-delegation) and whatever is specified in the `accounts` array.
+
+An account can also contain an optional `vesting` key, which defines the vesting strategy of the various coins of that account. Note that the coins defined in here are a subset of the main coins of the account. In other words, the coins defined in the `vesting` key must already exist, and must be less than the coins defined directly outside of the `vesting` key. The `start` key is optional (defaults to the start time of the chain), but the `end` key is compulsory, and they both accept Unix time only.
 
 ### Genesis Coins Total Supply
 
