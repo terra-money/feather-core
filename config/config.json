@@ -1,11 +1,38 @@
 {
-  "chain_id": "feather-1",
-  "app_name": "feather-core",
-  "address_prefix": "feath",
-  "bond_denom": "stake",
-  "bond_supply": "1000000000",
+  "chain_id": "berry-1",
+  "app_name": "berry",
+  "address_prefix": "berry",
+  "bond_denom": "uberry",
+  "bond_supply": "1000000000000",
   "unbonding_time": "1814400s",
   "max_validators": 130,
   "min_commission_rate": "0",
-  "accounts": []
+  "accounts": [
+    {
+      "address": "berry1sy5k6hzs2kv2au40xr0zaa5yzpczauft90h9hk",
+      "coins": [
+        {
+          "denom": "uberry",
+          "amount": "4000000000"
+        },
+        {
+          "denom": "ulemon",
+          "amount": "3000000000"
+        }
+      ]
+    },
+    {
+      "address": "berry10pcj2w9v9le082muuvfa866meffd87ys7gs4dr",
+      "coins": [
+        {
+          "denom": "uberry",
+          "amount": "2000000000"
+        },
+        {
+          "denom": "ulemon",
+          "amount": "8000000000"
+        }
+      ]
+    }
+  ]
 }
