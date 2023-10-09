@@ -112,6 +112,13 @@ else
 	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/$(FEATH_CONFIG_APP_BINARY_NAME) ./cmd/feather-cored
 endif
 
+build-mantlemint: go.sum
+ifeq ($(OS),Windows_NT)
+	exit 1
+else
+	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/mantlemint ./mantlemint/sync.go
+endif
+
 build-contract-tests-hooks:
 ifeq ($(OS),Windows_NT)
 	go build -mod=readonly $(BUILD_FLAGS) -o $(BUILDDIR)/contract_tests.exe ./cmd/contract_tests
